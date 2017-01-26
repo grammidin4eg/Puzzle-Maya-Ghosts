@@ -1,0 +1,13 @@
+Configuration on demand is an incubating feature.
+:core:compileJava UP-TO-DATE
+:core:processResources UP-TO-DATE
+:core:classes UP-TO-DATE
+:core:jar UP-TO-DATE
+:desktop:compileJava UP-TO-DATE
+:desktop:processResources UP-TO-DATE
+:desktop:classes UP-TO-DATE
+:desktop:run
+
+BUILD SUCCESSFUL
+
+Total time: 3.444 secs
