@@ -12,12 +12,15 @@ public class MayaGhostsMain extends ApplicationAdapter {
 	SpriteBatch batch;
 	private IScene curScene;
 	private Vector<IScene> allScenes = new Vector<IScene>();
+	private ResKeeper resKeeper;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		allScenes.add(new SceneLogo());
+		resKeeper = new ResKeeper();
+		allScenes.add(new SceneLogo(resKeeper));
 		curScene = allScenes.elementAt(0);
+		curScene.show();
 	}
 
 	@Override
@@ -32,8 +35,6 @@ public class MayaGhostsMain extends ApplicationAdapter {
 	@Override
 	public void dispose () {
 		batch.dispose();
-		for( IScene curScene : allScenes ) {
-			curScene.dispose();
-		}
+		resKeeper.dispose();
 	}
 }

@@ -1,6 +1,8 @@
 package com.karachevtsev.mayaghostsballs;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 /**
@@ -8,29 +10,24 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  */
 
 public class SceneLogo implements IScene {
-    private Texture logo;
+    private final Sprite logo;
+    private ResKeeper res;
 
-    public SceneLogo() {
-        logo = new Texture("badlogic.jpg");
+    public SceneLogo(ResKeeper _res) {
+        this.res = _res;
+        logo = this.res.getSprite("btn_play");
     }
 
     @Override
     public boolean render(SpriteBatch sb) {
-        sb.draw(logo, 0, 0);
+        logo.draw(sb);
         return false;
     }
 
     @Override
     public void show() {
-
-    }
-
-    @Override
-    public void create() {
-    }
-
-    @Override
-    public void dispose() {
-        logo.dispose();
+        logo.setOriginCenter();
+        logo.setX(Gdx.graphics.getWidth()/2-logo.getWidth()/2);
+        logo.setY(Gdx.graphics.getHeight()/2-logo.getHeight()/2);
     }
 }

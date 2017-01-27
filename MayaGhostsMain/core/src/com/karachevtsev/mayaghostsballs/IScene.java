@@ -9,7 +9,4 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public interface IScene {
     public boolean render(SpriteBatch sb);
     public void show();
-    public void create();
-    public void dispose();
-
 }
