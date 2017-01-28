@@ -17,17 +17,17 @@ public class Grid {
     private Vector<Cell> cells = new Vector<Cell>();
     private float marginY;
 
-    public Grid(ResKeeper _res, int size, float _cellsize) {
+    public Grid(ResKeeper _res, int sizex, int sizey, float _cellsize) {
         res = _res;
         floor = res.getSprite("floor");
         cellSize = _cellsize;
 
         int cx = 0;
         int cy = 0;
-        for(int i=0;i<(size*size);i++) {
+        for(int i=0;i<(sizex*sizey);i++) {
             cells.add(new Cell(cx, cy, CellType.FLOOR));
             cx=cx+1;
-            if(cx>size) {
+            if(cx>=sizex) {
                 cx=0;
                 cy=cy+1;
             }

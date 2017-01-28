@@ -20,6 +20,9 @@ public class SceneMain implements IScene {
     private final Grid mainGrid ;
     private RetCommand retCom;
 
+    private static final int GRIDY  = 12;
+    private static final int GRIDX  = 10;
+
     public SceneMain(ResKeeper _res) {
         this.res = _res;
         topImg = this.res.getSprite("canvas_up");
@@ -27,7 +30,7 @@ public class SceneMain implements IScene {
         topBorder = res.getSprite("canvas_border_up");
         bottomBorder = res.getSprite("canvas_border_down");
 
-        mainGrid = new Grid(res, 10, Gdx.graphics.getWidth()/10);
+        mainGrid = new Grid(res, GRIDX, GRIDY, Gdx.graphics.getWidth()/GRIDX);
 
         inputProc = new InputProcessor() {
             @Override
@@ -77,11 +80,12 @@ public class SceneMain implements IScene {
 
     @Override
     public boolean render(SpriteBatch sb) {
+        mainGrid.render(sb);
+
         topImg.draw(sb);
         topBorder.draw(sb);
         bottomImg.draw(sb);
         bottomBorder.draw(sb);
-        mainGrid.render(sb);
         return false;
     }
 
@@ -104,11 +108,24 @@ public class SceneMain implements IScene {
 
     @Override
     public void resize(int width, int height) {
-        float newHeight = getHeightForWidthWide(topImg, width);
-        topImg.setSize(width, newHeight);
-        topImg.setY(height-topImg.getHeight());
+        float cellSize = width/GRIDX;
+        float fillBlockSize = (height - (width/GRIDX)*GRIDY)/2 - 4;
+        float fillBlockWidth = getWidthForHWide(topImg, fillBlockSize);
+        if( fillBlockWidth < width) {
+            fillBlockWidth = width;
+        }
 
-        bottomImg.setSize(width, getHeightForWidthWide(bottomImg, width));
+        topImg.setSize(fillBlockWidth, fillBlockSize);
+        topImg.setY(height-topImg.getHeight());
+        topImg.setX( (width-topImg.getWidth())/2 );
+
+        fillBlockWidth = getWidthForHWide(bottomImg, fillBlockSize);
+        if( fillBlockWidth < width) {
+            fillBlockWidth = width;
+        }
+
+        bottomImg.setSize(width, fillBlockSize);
+        bottomImg.setX( (width-bottomImg.getWidth())/2 );
 
         topBorder.setSize(width, getHeightForWidthWide(topBorder, width));
         topBorder.setY(height-topImg.getHeight()-topBorder.getHeight());
@@ -116,11 +133,15 @@ public class SceneMain implements IScene {
         bottomBorder.setSize(width, getHeightForWidthWide(bottomBorder, width));
         bottomBorder.setY(bottomImg.getHeight());
 
-        mainGrid.setCellSize(width/10);
+        mainGrid.setCellSize(cellSize);
         mainGrid.setMarginY(bottomImg.getHeight()+bottomBorder.getHeight());
     }
 
     private float getHeightForWidthWide(Sprite spr, float screenWidth) {
         return screenWidth*spr.getHeight()/spr.getWidth();
+    }
+
+    private float getWidthForHWide(Sprite spr, float screenHeight) {
+        return screenHeight*spr.getWidth()/spr.getHeight();
     }
 }

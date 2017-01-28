@@ -3,8 +3,10 @@ package com.karachevtsev.mayaghostsballs;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 
 import java.util.HashMap;
 import java.util.Vector;
@@ -14,10 +16,15 @@ public class MayaGhostsMain extends ApplicationAdapter {
 	private IScene curScene;
 	private HashMap<String, IScene> allScenes = new HashMap<String, IScene>();
 	private ResKeeper resKeeper;
+	private OrthographicCamera camera;
+	private ExtendViewport viewport;
 
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);
+		viewport.update(width, height, true);
+		batch.setProjectionMatrix(camera.combined);
+
 		curScene.resize(width, height);
 	}
 
@@ -25,10 +32,15 @@ public class MayaGhostsMain extends ApplicationAdapter {
 	public void create () {
 		batch = new SpriteBatch();
 		resKeeper = new ResKeeper();
+
 		allScenes.put("Logo", new SceneLogo(resKeeper));
 		allScenes.put("Main", new SceneMain(resKeeper));
 
 		gotoScene("Logo");
+
+		camera = new OrthographicCamera();
+		viewport = new ExtendViewport(480, 800, camera);
+		batch.setProjectionMatrix(camera.combined);
 	}
 
 	@Override
