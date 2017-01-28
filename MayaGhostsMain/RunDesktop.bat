@@ -1,1 +1,1 @@
-gradlew desktop:run > out.log
+gradlew desktop:run

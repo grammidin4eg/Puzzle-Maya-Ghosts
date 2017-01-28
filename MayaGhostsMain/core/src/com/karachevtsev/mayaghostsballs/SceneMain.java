@@ -2,23 +2,23 @@ package com.karachevtsev.mayaghostsballs;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 /**
- * Created by root on 27.01.2017.
+ * Created by root on 28.01.2017.
  */
 
-public class SceneLogo implements IScene {
-    private final Sprite logo;
-    private final InputProcessor inputProc;
-    private RetCommand retCom;
-    private ResKeeper res;
+public class SceneMain implements IScene {
 
-    public SceneLogo(ResKeeper _res) {
+    private final InputProcessor inputProc;
+    private final ResKeeper res;
+    private final Sprite topImg;
+    private RetCommand retCom;
+
+    public SceneMain(ResKeeper _res) {
         this.res = _res;
-        logo = this.res.getSprite("btn_play");
+        topImg = this.res.getSprite("canvas_up");
 
         inputProc = new InputProcessor() {
             @Override
@@ -38,7 +38,7 @@ public class SceneLogo implements IScene {
 
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                retCom = RetCommand.LOAD_MAIN_SCENE;
+                //retCom = RetCommand.LOAD_MAIN_SCENE;
                 return false;
             }
 
@@ -68,7 +68,7 @@ public class SceneLogo implements IScene {
 
     @Override
     public boolean render(SpriteBatch sb) {
-        logo.draw(sb);
+        topImg.draw(sb);
         return false;
     }
 
@@ -76,6 +76,7 @@ public class SceneLogo implements IScene {
     public void show() {
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.input.setInputProcessor(inputProc);
+
     }
 
     @Override
@@ -90,8 +91,9 @@ public class SceneLogo implements IScene {
 
     @Override
     public void resize(int width, int height) {
-        logo.setOriginCenter();
-        logo.setX(width/2-logo.getWidth()/2);
-        logo.setY(height/2-logo.getHeight()/2);
+        float newHeight = width*topImg.getHeight()/topImg.getWidth();
+        topImg.setSize(width, newHeight);
+        topImg.setX(0);
+        topImg.setY(height-topImg.getHeight());
     }
 }
