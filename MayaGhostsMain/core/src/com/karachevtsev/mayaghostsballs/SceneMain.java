@@ -124,7 +124,7 @@ public class SceneMain implements IScene {
             fillBlockWidth = width;
         }
 
-        bottomImg.setSize(width, fillBlockSize);
+        bottomImg.setSize(fillBlockWidth, fillBlockSize);
         bottomImg.setX( (width-bottomImg.getWidth())/2 );
 
         topBorder.setSize(width, getHeightForWidthWide(topBorder, width));
