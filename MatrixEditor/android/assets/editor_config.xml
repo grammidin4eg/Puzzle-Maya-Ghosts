@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<root>
+    <grid width="10" height="10" default="0"></grid>
+	<atlas name="maya_ghosts"></atlas>
+	<atlas name="ball"></atlas>
+	<atlas name="spirit"></atlas>
+	<itemprop>
+       <prop name="direction">      
+          <value val="Right"></value>	   
+          <value val="Left"></value>		  
+		  <value val="Top"></value>
+		  <value val="Bottom"></value>
+       </prop>       
+	   <prop name="wall_type">          
+          <value val="NotWall"></value>
+		  <value val="JustWall"></value>
+		  <value mark="blue" val="Invisible"></value>
+		  <value mark="green" val="ChangeStart"></value>
+		  <value mark="red" val="ChangeEnd"></value>
+       </prop>
+	   <prop name="system">          
+          <value val="NotSystem"></value>
+		  <value val="ChangeTimer"></value>
+		  <value val="Helper"></value>		  		  
+		  <value val="LastLevel"></value>
+       </prop>
+    </itemprop>
+    <items>
+        <item id="0" name="none" file="air.png"></item>	
+        <item id="1" name="wall" file="wall" atlas="maya_ghosts">
+			<ival name="wall_type" value="JustWall"></ival>
+		</item>
+		<item id="2" name="wall2" file="wall2" atlas="maya_ghosts">
+			<ival name="wall_type" value="JustWall"></ival>
+		</item>
+		<item id="3" name="floor_arrow" file="floor_arrow" atlas="maya_ghosts"></item>
+		<item id="4" name="bomb" file="bomb" atlas="maya_ghosts"></item>
+		<item id="5" name="Floor_Button_On" file="Floor_Button_On" atlas="maya_ghosts"></item>
+		<item id="6" name="spirit" file="spirit" atlas="spirit" animation="true"></item>
+		<item id="7" name="system_object" file="mage.png">
+			<ival name="system" value="ChangeTimer"></ival>
+		</item>		
+		<item id="8" name="ball" file="ball" atlas="ball" animation="true"></item>
+    </items>
+</root>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<level>
+<item col="7" row="0" type="3">
+<ival name="control by" value="Player"/>
+<ival name="some prop" value="some 1"/>
+<ival name="hp" value="2"/>
+<ival name="dmg" value="2"/>
+<ival name="speed" value="3"/>
+</item>
+<item col="7" row="5" type="2">
+<ival name="control by" value="Player"/>
+<ival name="some prop" value="some 4"/>
+<ival name="hp" value="4"/>
+<ival name="dmg" value="2"/>
+<ival name="speed" value="3"/>
+</item>
+<item col="5" row="0" type="1">
+<ival name="control by" value="Player"/>
+<ival name="some prop" value="some 1"/>
+<ival name="hp" value="2"/>
+<ival name="dmg" value="0"/>
+<ival name="speed" value="1"/>
+</item>
+<item col="6" row="6" type="4">
+<ival name="control by" value="None"/>
+<ival name="some prop" value="some 1"/>
+</item>
+<item col="4" row="4" type="4">
+<ival name="control by" value="None"/>
+<ival name="some prop" value="some 1"/>
+</item>
+<item col="2" row="9" type="3">
+<ival name="control by" value="AI"/>
+<ival name="some prop" value="some 1"/>
+<ival name="hp" value="2"/>
+<ival name="dmg" value="2"/>
+<ival name="speed" value="3"/>
+</item>
+<item col="8" row="9" type="3">
+<ival name="control by" value="AI"/>
+<ival name="some prop" value="some 1"/>
+<ival name="hp" value="2"/>
+<ival name="dmg" value="2"/>
+<ival name="speed" value="3"/>
+</item>
+<item col="4" row="6" type="2">
+<ival name="control by" value="AI"/>
+<ival name="some prop" value="some 1"/>
+<ival name="hp" value="4"/>
+<ival name="dmg" value="2"/>
+<ival name="speed" value="3"/>
+</item>
+<item col="3" row="4" type="4">
+<ival name="control by" value="None"/>
+<ival name="some prop" value="some 1"/>
+</item>
+<item col="2" row="4" type="4">
+<ival name="control by" value="None"/>
+<ival name="some prop" value="some 1"/>
+</item>
+</level>

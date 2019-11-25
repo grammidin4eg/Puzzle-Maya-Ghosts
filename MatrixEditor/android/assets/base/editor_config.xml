@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<root>
+    <grid width="10" height="10" default="0"></grid>
+    <itemprop>
+       <prop name="control by">
+          <value mark="red" val="AI"></value>
+          <value mark="blue" val="Player"></value>          
+          <value val="None"></value>
+       </prop>
+       <prop name="some prop">
+          <value val="some 1"></value>
+          <value val="some 2"></value>
+          <value val="some 3"></value>
+          <value val="some 4"></value>
+       </prop>
+    </itemprop>
+    <items>
+        <item id="0" name="none" file="air.png"></item>
+		<item id="1" name="mage" file="mage.png">
+			<ival name="hp" value="2"></ival>
+        	<ival name="dmg" value="0"></ival>
+        	<ival name="speed" value="1"></ival>
+		</item>
+        <item id="2" name="warrior" file="war.png">
+        	<ival name="hp" value="4"></ival>
+        	<ival name="dmg" value="2"></ival>
+        	<ival name="speed" value="3"></ival>
+        </item>
+        <item id="3" name="archer" file="arch.png">
+        	<ival name="hp" value="2"></ival>
+        	<ival name="dmg" value="2"></ival>
+        	<ival name="speed" value="3"></ival>
+        </item>
+        <item id="4" name="wall" file="wall.png"></item>
+    </items>
+</root>
