@@ -22,4 +22,4 @@ else
 	native.setProperty( "androidSystemUiVisibility", "immersiveSticky" ) 
 end
 
-composer.gotoScene( "menu", { params={ } } )
+composer.gotoScene( "game", { params={ } } )

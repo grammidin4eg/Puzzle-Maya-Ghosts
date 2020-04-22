@@ -1,0 +1,5 @@
+1381140232464	Rename type 'SpriveObject'
+1381174547758	Encapsulate field 'mSprite'
+1381174566335	Encapsulate field 'mAction'
+1381174667403	Encapsulate field 'mBlocks'
+1381408011265	Encapsulate field 'mWidth'

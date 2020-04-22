@@ -6,12 +6,12 @@ local scene = composer.newScene()
 function scene:create( event )
     print('game create')
     local sceneGroup = self.view
-    local myRectangle = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, common.screenWidth, common.screenHeight*2 )
-    myRectangle:setFillColor( 0.4, 0.4, 1 )
+    -- local myRectangle = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, common.screenWidth, common.screenHeight*2 )
+    -- myRectangle:setFillColor( 0.4, 0.4, 1 )
 
     -- очки
-    local tapText = display.newText( sceneGroup, 'score: 0', 105, 0, native.systemFont, 50)
-    tapText:setFillColor( 0, 1, 0 )
+    -- local tapText = display.newText( sceneGroup, 'score: 0', 105, 0, native.systemFont, 50)
+    -- tapText:setFillColor( 0, 1, 0 )
 
     -- отрисовка сетки
     render.gridLines(sceneGroup)

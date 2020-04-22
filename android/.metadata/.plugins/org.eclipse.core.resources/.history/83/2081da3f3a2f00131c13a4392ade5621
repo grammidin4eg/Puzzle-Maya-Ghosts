@@ -1,0 +1,104 @@
+package com.karachevtsevuu.mayaghosts;
+
+import org.andengine.engine.camera.Camera;
+import org.andengine.engine.options.EngineOptions;
+import org.andengine.engine.options.ScreenOrientation;
+import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.scene.Scene;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.ui.activity.SimpleBaseGameActivity;
+
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.KeyEvent;
+
+public class MainActivity extends SimpleBaseGameActivity {
+
+	
+	public static Camera mainCamera;
+	public static int screenWidth = 800;
+	public static int screenHeight = 600;
+	public static int screenGrid = 60;
+	public static int screenMargin = 100;
+	public static RoomMaster roomMaster;
+	private boolean gameLoaded = false;
+	public static MainActivity mainActivity;
+	public static StaticLevel staticLevels;
+	
+	//текстуры	
+	public SpriteObject sWall;
+	public SpriteObject sPl;
+	public SpriteObject sArrow;
+	
+	public MainActivity() {
+		mainActivity = this;
+	}
+	
+	@Override
+	public EngineOptions onCreateEngineOptions() {
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		screenWidth = metrics.widthPixels;
+		screenHeight = metrics.heightPixels;
+		if(screenHeight<screenWidth) {
+			int buf = screenWidth;
+			screenWidth = screenHeight;
+			screenHeight = buf;
+		}
+		Log.d("Resolution", "resolution: "+screenWidth+" x "+ screenHeight);
+		screenGrid = screenWidth/10;
+		screenMargin = (screenHeight - screenWidth)/2;
+		mainCamera = new Camera(0, 0, screenWidth, screenHeight);
+		RatioResolutionPolicy resolution = new RatioResolutionPolicy(screenWidth, screenHeight);
+		EngineOptions opts = new EngineOptions(true, ScreenOrientation.PORTRAIT_FIXED, resolution, mainCamera);
+		opts.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
+		return opts;
+	}
+
+	@Override
+	protected void onCreateResources() {
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+		sWall = new SpriteObject(78, 78, "wall.png",false,0,0);
+		sPl = new SpriteObject(32, 32, "face_box.png",false,0,0);		
+		sArrow = new SpriteObject(120, 60, "arrow.png",false,0,0);
+		
+		//загрузка уровней
+		staticLevels = new StaticLevel();
+		//staticLevels = null;
+	}
+
+	@Override
+	protected Scene onCreateScene() {
+		roomMaster = new RoomMaster();
+		gameLoaded = true;
+		return roomMaster;
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if( keyCode == KeyEvent.KEYCODE_BACK) {			
+			if( !gameLoaded ) {
+				return true;
+			}			
+			if( gameLoaded && (roomMaster!=null) ) {
+				roomMaster.onKeyBack(keyCode, event);
+			}
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		android.os.Process.killProcess(android.os.Process.myPid());
+	}
+
+
+}
+

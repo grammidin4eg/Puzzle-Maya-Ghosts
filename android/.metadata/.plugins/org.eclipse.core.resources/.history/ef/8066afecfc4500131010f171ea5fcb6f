@@ -1,0 +1,51 @@
+package com.karachevtsevuu.mayaghosts;
+
+import java.util.Vector;
+
+public class MatrixMover {
+	private Vector<GBlock> mBlocks;
+	private int directionX = 0;
+	private int directionY = 0;
+	private GSprite movedObj = null;
+	
+	private static MatrixMover self = null;
+	
+	public static MatrixMover getSelf() {
+		if( self == null ) {
+			self = new MatrixMover();
+		}
+		return self;
+	}
+
+	public MatrixMover() {
+		self = this;
+	}
+	public Vector<GBlock> getBlocks() {
+		return mBlocks;
+	}
+
+	public void setBlocks(Vector<GBlock> mBlocks) {
+		this.mBlocks = mBlocks;
+	}
+	
+	public void moveX(int direction, GSprite moved_object) {
+		directionX = direction;
+		movedObj = moved_object;
+	}
+	
+	public void moveY(int direction, GSprite moved_object) {
+		directionY = direction;
+		movedObj = moved_object;
+	}
+	
+	public void doStep() {
+		if( checkWay() ) {
+			
+		}
+	}
+	
+	public boolean checkWay() {
+		//no solid / solid
+		
+	}
+}

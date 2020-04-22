@@ -1,0 +1,110 @@
+package com.karachevtsevuu.mayaghosts;
+
+import org.andengine.entity.modifier.RotationByModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.scene.IOnAreaTouchListener;
+import org.andengine.entity.scene.ITouchArea;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+
+import android.util.Log;
+
+public class GameRoom extends Room {
+	public static GameRoom gameRoom;
+	private Sprite arrowSprite = null;
+	private Sprite plSprite = null;
+	private boolean showArrow = false;
+	private MainGrid mainGrid = null; 
+	private float arrowSpriteX = 0;
+	private float arrowSpriteY = 0;
+	
+	public GameRoom() {
+		super();
+		gameRoom = this;
+		
+		arrowSprite = MainActivity.mainActivity.sArrow.genSprite(0, 0, 100, MainActivity.mainActivity.screenGrid);
+		attachChild(arrowSprite);
+		arrowSprite.setVisible(false);
+		
+		mainGrid = new MainGrid();
+		mainGrid.setGraphObject(this);		
+		
+	}
+	
+	@Override
+	public boolean onSceneTouchEvent(TouchEvent pSceneTouchEvent) {
+		switch (pSceneTouchEvent.getAction()) {
+		case TouchEvent.ACTION_DOWN:			
+			for( Sprite cur_pl : mainGrid.getPlList()) {
+				if( touchInSprite(cur_pl, pSceneTouchEvent) ) {
+					createArrow(cur_pl);
+					break;
+				}
+			}
+			break;
+		case TouchEvent.ACTION_MOVE:
+			if(showArrow) {
+				float new_width = pSceneTouchEvent.getX()-arrowSpriteX;
+				float new_height = pSceneTouchEvent.getY()-arrowSpriteY;
+				
+				float new_obj_width = new_width;				
+				if( Math.abs(new_height)>Math.abs(new_width)) {
+					//повернуть стрелку
+					arrowSprite.setRotation(90.0f);
+					new_obj_width = new_height;
+					arrowSprite.setPosition(arrowSpriteX-MainActivity.mainActivity.screenGrid, arrowSpriteY+MainActivity.mainActivity.screenGrid);
+				} else {
+					arrowSprite.setRotation(0);
+					arrowSprite.setPosition(arrowSpriteX, arrowSpriteY);
+				}
+				
+				if( Math.abs(new_obj_width)>MainActivity.mainActivity.screenGrid*2 ) {
+					new_obj_width = MainActivity.mainActivity.screenGrid*2*(new_obj_width/Math.abs(new_obj_width));
+				}
+				arrowSprite.setWidth(new_obj_width);
+				Log.d("GameDebug", "In ACTION_MOVE:"+String.valueOf(new_width));
+			}
+			break;
+		case TouchEvent.ACTION_UP:	
+			if(showArrow) {						
+				removeArrow();
+				plSprite.registerEntityModifier(new SequenceEntityModifier(new RotationByModifier(3, 90)) );
+			}
+			break;
+		}			
+		return true;
+		//return super.onSceneTouchEvent(pSceneTouchEvent);
+	}
+	
+	private boolean touchInSprite(Sprite sprite, TouchEvent pSceneTouchEvent) {
+		final float mx = pSceneTouchEvent.getX();
+		final float my = pSceneTouchEvent.getY();
+		final float sx = sprite.getX();
+		final float sy = sprite.getY();
+		final float sx_end = sprite.getX()+sprite.getWidthScaled();
+		final float sy_end = sprite.getY()+sprite.getHeightScaled();
+		
+		return ( (mx<sx_end) && (mx>sx) && (my>sy) && (my<sy_end) );
+	}
+	
+	public void createArrow(Sprite faceSprite) {
+		plSprite = faceSprite;
+		if( arrowSprite==null ) {
+			arrowSprite = MainActivity.mainActivity.sArrow.genSprite(0, 0, 100, MainActivity.mainActivity.screenGrid);
+			attachChild(arrowSprite);
+		}
+		arrowSpriteX = plSprite.getX()+plSprite.getWidth()/2;
+		arrowSpriteY = plSprite.getY();
+		arrowSprite.setPosition(arrowSpriteX, arrowSpriteY);
+		plSprite.setScale(1.2f);
+		arrowSprite.setVisible(true);
+		showArrow = true;
+	}
+	
+	public void removeArrow() {
+		arrowSprite.setVisible(false);
+		showArrow = false;
+		plSprite.setScale(1.0f);
+	}	
+		
+}

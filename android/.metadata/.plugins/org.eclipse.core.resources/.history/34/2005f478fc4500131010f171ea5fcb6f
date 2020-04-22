@@ -1,0 +1,127 @@
+package com.karachevtsevuu.mayaghosts;
+
+import java.util.Vector;
+
+import org.andengine.engine.handler.physics.PhysicsHandler;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
+public class GSprite extends AnimatedSprite {
+	private final PhysicsHandler mPhysicsHandler;
+	private float velocity = 200.0f;
+	private int xmove = 0;
+	private int ymove = 0;
+	private Vector<GBlock> mBlocks= null;
+	private int spriteId = 0;
+		
+	public GSprite(final float pX, final float pY, final ITiledTextureRegion pTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
+		velocity = MainActivity.screenGrid*5;
+		this.mPhysicsHandler = new PhysicsHandler(this);
+		this.registerUpdateHandler(this.mPhysicsHandler);
+		this.mPhysicsHandler.setVelocityX(0);
+		this.mPhysicsHandler.setVelocityY(0);
+	}
+
+	public void setSpeed(int x, int y) {
+		xmove = x;
+		ymove = y;
+		this.mPhysicsHandler.setVelocity(velocity*x, velocity*y);		
+	}
+	
+	public void stopMove() {
+		xmove = 0;
+		ymove = 0;
+		this.mPhysicsHandler.setVelocity(0, 0);
+		this.stopAnimation();
+	}
+	
+	private void goAway() {		
+		//float dt = MainActivity.screenGrid/10;
+		final float ddt_y = -1*xmove*MainActivity.screenGrid/3+(ymove>0 ? -1*this.getHeightScaled()/2: 0)-MainActivity.screenMargin;
+		final float ddt_x = -1*xmove*MainActivity.screenGrid/3/*+(xmove>0 ? -1*this.getWidthScaled()/2: 0)*/;
+		final float ax = Math.round((this.getX()+ddt_x)/MainActivity.screenGrid);
+		final float ay = Math.round((this.getY()+ddt_y)/MainActivity.screenGrid);
+		this.setPosition(ax*MainActivity.screenGrid+MainActivity.screenGrid/2-this.getWidthScaled()/2, ay*MainActivity.screenGrid+MainActivity.screenMargin+MainActivity.screenGrid/2-this.getHeightScaled()/2);		
+	}
+	
+	@Override
+	protected void onManagedUpdate(final float pSecondsElapsed) {
+		if( (xmove!=0) || (ymove!=0) ) {
+			//this.mPhysicsHandler.setVelocityX(velocity*xmove);		
+			//this.mPhysicsHandler.setVelocityY(velocity*ymove);
+			
+			if( (this.getX()<0) || (this.getX()+this.getWidthScaled()>MainActivity.screenWidth ) ||
+			    (this.getY()<MainActivity.screenMargin) || (this.getY()+this.getHeightScaled()>MainActivity.screenHeight-MainActivity.screenMargin )
+			  ) {
+				if(this.getX()<0)
+					this.setX(0);
+				if(this.getY()<MainActivity.screenMargin)
+					this.setY(MainActivity.screenMargin);
+				if(this.getX()+this.getWidthScaled()>MainActivity.screenWidth)
+					this.setX(MainActivity.screenWidth-this.getWidthScaled());
+				if( this.getY()+this.getHeightScaled()>MainActivity.screenHeight-MainActivity.screenMargin)
+					this.setY(MainActivity.screenHeight-this.getHeightScaled()-MainActivity.screenMargin);
+				goAway();
+				stopMove();
+			}
+			if( mBlocks!=null) {
+				for( GBlock cur_block : mBlocks ) {
+					if( (cur_block.getSprite() != this) && /*this.collidesWith(cur_block.getSprite())*/collideGridSprite(this, cur_block.getSprite()) ) {
+						if( cur_block.getAction()!=null ) { 
+							boolean stop = cur_block.runAction();
+							if( stop ) {
+								goAway();
+								stopMove();
+							}								
+						} else {
+							goAway();
+							stopMove();
+						}
+					}
+				}
+			}
+		}	
+		super.onManagedUpdate(pSecondsElapsed);
+	}
+
+	public boolean collideGridSprite(Sprite obj1, Sprite obj2) {
+		float grid_delta1 = (MainActivity.screenGrid-obj1.getWidthScaled())/2-3;
+		float grid_delta2 = (MainActivity.screenGrid-obj2.getWidthScaled())/2-3;
+		final float ddx = xmove*5;
+		final float ddy = ymove*5;
+		//grid_delta1 = 0;
+		//grid_delta2 = 0;
+		final float o1_x = obj1.getX()-grid_delta1+ddx;
+		final float o1_y = obj1.getY()-grid_delta1+ddy;
+		final float o1_width = obj1.getWidthScaled()+grid_delta1+ddx;
+		final float o1_height = obj1.getHeightScaled()+grid_delta1+ddy;
+		
+		final float o2_x = obj2.getX()-grid_delta2;
+		final float o2_y = obj2.getY()-grid_delta2;
+		final float o2_width = obj2.getWidthScaled()+grid_delta2;
+		final float o2_height = obj2.getHeightScaled()+grid_delta2;
+		
+		if( ( ((o1_x>=o2_x) && (o1_x<=(o2_x+o2_width))) || (((o1_x+o1_width)>=o2_x) && ((o1_x+o1_width)<=(o2_x+o2_width))) ) && 
+		( ((o1_y>=o2_y) && (o1_y<=(o2_y+o2_height))) || (((o1_y+o1_height)>=o2_y) && ((o1_y+o1_height)<=(o2_y+o2_height))) ) 
+		) {
+			return true;
+		}
+		
+		return false;
+	}
+	public void setBlocks(Vector<GBlock> mBlocks) {
+		this.mBlocks = mBlocks;
+	}
+
+	public int getSpriteId() {
+		return spriteId;
+	}
+
+	public void setSpriteId(int spriteId) {
+		this.spriteId = spriteId;
+		this.stopAnimation(spriteId);
+	}
+}

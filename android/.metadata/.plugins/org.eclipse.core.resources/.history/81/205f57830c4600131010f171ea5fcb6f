@@ -1,0 +1,53 @@
+package com.karachevtsevuu.mayaghosts;
+
+import org.andengine.entity.sprite.Sprite;
+
+public class GBlock {
+	private Sprite mSprite = null;
+	private IGameAction mAction = null;
+	private int mRow;
+	private int mCol;
+	
+	public GBlock(int row, int col) {
+		mRow = row;
+		mCol = col;
+	}
+	
+	public int getRow() {
+		return mRow;
+	}
+	
+	public int getCol() {
+		return mCol;
+	}
+	
+	public Sprite getSprite() {
+		return mSprite;
+	}
+	public void setSprite(Sprite mSprite) {
+		this.mSprite = mSprite;
+	}
+	public IGameAction getAction() {
+		return mAction;
+	}
+	public boolean runAction() {
+		if( mAction == null ) {
+			return true;
+		}
+		return mAction.RunCollision(mSprite);
+	}
+	public void setAction(IGameAction mAction) {
+		this.mAction = mAction;
+	}
+	public void remove() {
+		mRow = -100;
+		mCol = -100;
+		MainActivity.mainActivity.runOnUiThread(new Runnable() {							
+			@Override
+			public void run() {
+				mSprite.setX(-100);
+				mSprite.setVisible(false);								
+			}
+		});
+	}
+}

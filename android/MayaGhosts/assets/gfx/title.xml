@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<texture version="1" file="title.png" type="bitmap" width="1024" height="1024" pixelformat="RGBA_8888" minfilter="linear" magfilter="linear" wrapt="clamp" wraps="clamp" premultiplyalpha="false">
+    <!-- Created with TexturePacker http://www.codeandweb.com/texturepacker -->
+    <!-- $TexturePacker:SmartUpdate:0f821851d0bbd81be1d0f6e6884f526c:1/1$ -->
+    <textureregion id="0" src="down_panel.png" x="604" y="2" width="600" height="400" rotated="true" trimmed="false" srcx="0" srcy="0" srcwidth="600" srcheight="400"/>
+    <textureregion id="1" src="logo.png" x="2" y="604" width="449" height="389" rotated="false" trimmed="true" srcx="0" srcy="2" srcwidth="449" srcheight="391"/>
+    <textureregion id="2" src="up_panel.png" x="2" y="2" width="600" height="400" rotated="false" trimmed="false" srcx="0" srcy="0" srcwidth="600" srcheight="400"/>
+</texture>

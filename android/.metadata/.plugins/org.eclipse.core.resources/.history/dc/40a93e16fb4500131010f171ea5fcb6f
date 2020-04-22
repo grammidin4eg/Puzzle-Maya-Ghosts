@@ -1,0 +1,19 @@
+package com.karachevtsevuu.mayaghosts;
+
+import java.util.Vector;
+
+public class MatrixMover {
+	private Vector<GBlock> mBlocks;
+	public static MatrixMover getSelf;
+
+	public MatrixMover() {
+		getSelf = this;
+	}
+	public Vector<GBlock> getBlocks() {
+		return mBlocks;
+	}
+
+	public void setBlocks(Vector<GBlock> mBlocks) {
+		this.mBlocks = mBlocks;
+	}
+}

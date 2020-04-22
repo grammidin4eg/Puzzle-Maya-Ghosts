@@ -1,0 +1,68 @@
+package com.karachevtsevuu.mayaghosts;
+
+import java.util.Vector;
+
+import org.andengine.entity.primitive.Line;
+import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.util.color.Color;
+
+public class MainGrid {
+	
+	private Vector<Sprite> plSprite = new Vector<Sprite>();
+	
+	public MainGrid() {
+		// TODO Auto-generated constructor stub
+	}
+	public GLevel loadLevel(int ind) {
+		return MainActivity.staticLevels.levelList.get(ind);
+	}	
+	public void setGraphObject(Room room) {
+		final float grid = MainActivity.screenGrid;
+		final float margin = MainActivity.screenMargin;
+		//сетка
+		for(int x=0;x<11;x++) {
+			final float coord = (x*grid);
+			final Line line = new Line(coord, margin, coord, MainActivity.screenHeight-margin, 1, MainActivity.mainActivity.getVertexBufferObjectManager());
+			room.attachChild(line);
+		}
+		for(int y=0;y<11;y++) {
+			final float coord = margin+y*grid;
+			final Line line = new Line(0, coord, MainActivity.screenWidth, coord, 1, MainActivity.mainActivity.getVertexBufferObjectManager());
+			room.attachChild(line);
+		}
+		
+		plSprite.clear();
+		GLevel cur_level = loadLevel(0);
+		for(int xx = 0;xx<10;xx++) {			
+			for(int yy = 0;yy<10;yy++) {
+				int type = cur_level.getValue(xx, yy);
+				float xxx = (xx*grid);
+				float yyy = margin+grid*yy;
+				switch (type) {
+				case 5:
+					final Sprite wall = MainActivity.mainActivity.sWall.genSprite(xxx, yyy, grid, grid);					
+					room.attachChild(wall);
+					break;
+				case 1:
+				case 2:
+				case 3:
+					if( MainActivity.mainActivity.sWall!=null) {
+						final GSprite face = MainActivity.mainActivity.sPl.genGSprite(xxx, yyy, grid, grid);
+						room.attachChild(face);
+						//room.registerTouchArea(face);
+						plSprite.add(face);
+					}
+					break;
+
+				default:
+					break;
+				}
+			}
+		}//*/
+	}
+	
+	public Vector<Sprite> getPlList() {
+		return plSprite;
+	}
+}

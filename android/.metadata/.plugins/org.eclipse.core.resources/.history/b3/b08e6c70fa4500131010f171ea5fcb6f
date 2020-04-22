@@ -1,0 +1,213 @@
+package com.karachevtsevuu.mayaghosts;
+
+import java.io.IOException;
+
+import org.andengine.audio.music.exception.MusicReleasedException;
+import org.andengine.entity.scene.menu.MenuScene;
+import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
+import org.andengine.entity.scene.menu.item.IMenuItem;
+import org.andengine.entity.scene.menu.item.SpriteMenuItem;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+
+import android.opengl.GLES20;
+import android.util.Log;
+import android.view.KeyEvent;
+
+public class GameRoom extends Room {
+	public static GameRoom gameRoom;
+	private Sprite arrowSprite = null;
+	private GSprite plSprite = null;
+	private boolean showArrow = false;
+	private MainGrid mainGrid = null; 
+	private float arrowSpriteX = 0;
+	private float arrowSpriteY = 0;
+	protected MenuScene mMenuScene;
+	private int numOfMoves = 0;
+	
+	public static final int MENU_RESET = 0;
+	public static final int MENU_QUIT = MENU_RESET + 1;
+	public static final int NUM_OF_MOVIES_FOR_OPEN_NEXT_LEVEL = 1;
+	
+	public GameRoom() {
+		super();
+		gameRoom = this;
+		
+		createSArrow();
+		
+		mainGrid = new MainGrid();
+		mainGrid.setGraphObject(this);		
+		
+		createMenuScene();
+		
+	}
+	public void createSArrow() {
+		arrowSprite = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.ARROW_ID, 10, MainActivity.mainActivity.screenGrid, -101, 0, null);
+		attachChild(arrowSprite);
+		arrowSprite.setVisible(false);
+	}
+	public void replay() {
+		//untouch кликабельные
+		this.getTouchAreas().clear();
+		numOfMoves = 0;
+		//this.clearChildScene();		
+		MainActivity.mainActivity.runOnUpdateThread(new Runnable() {
+			@Override
+			public void run() {
+				GameRoom.gameRoom.detachChildren();
+				GameRoom.gameRoom.createSArrow();
+				MainGrid.mMainGrid.setGraphObject(GameRoom.gameRoom);
+				MainGrid.mMainGrid.gbNextLevel.setMainSprite();
+				GameRoom.gameRoom.reset();				
+			}
+		});						
+				
+	}
+	
+	protected void createMenuScene() {
+		this.mMenuScene = new MenuScene(MainActivity.mainCamera);	
+		final SpriteMenuItem resetMenuItem = new SpriteMenuItem(MENU_RESET, MainActivity.mainActivity.tp_menu_lib.get(tp_menu.MENU_RESET_ID), MainActivity.mainActivity.getVertexBufferObjectManager());
+		resetMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		this.mMenuScene.addMenuItem(resetMenuItem);		
+
+		final SpriteMenuItem quitMenuItem = new SpriteMenuItem(MENU_QUIT, MainActivity.mainActivity.tp_menu_lib.get(tp_menu.MENU_QUIT_ID), MainActivity.mainActivity.getVertexBufferObjectManager());
+		quitMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		this.mMenuScene.addMenuItem(quitMenuItem);
+
+		this.mMenuScene.buildAnimations();
+
+		this.mMenuScene.setBackgroundEnabled(false);
+
+		this.mMenuScene.setOnMenuItemClickListener(MainActivity.mainActivity);
+	}
+	
+	@Override
+	public boolean onSceneTouchEvent(TouchEvent pSceneTouchEvent) {
+		switch (pSceneTouchEvent.getAction()) {
+		case TouchEvent.ACTION_DOWN:			
+			for( GSprite cur_pl : mainGrid.getPlList()) {
+				if( touchInSprite(cur_pl, pSceneTouchEvent) ) {
+					createArrow(cur_pl);
+					break;
+				}
+			}
+			break;
+		case TouchEvent.ACTION_MOVE:
+			if(showArrow) {
+				float new_width = pSceneTouchEvent.getX()-arrowSpriteX;
+				float new_height = pSceneTouchEvent.getY()-arrowSpriteY;
+				
+				float new_obj_width = new_width;				
+				if( Math.abs(new_height)>Math.abs(new_width)) {
+					//повернуть стрелку
+					arrowSprite.setRotation(90.0f);
+					new_obj_width = new_height;
+					//arrowSprite.setPosition(arrowSpriteX-MainActivity.mainActivity.screenGrid, arrowSpriteY+MainActivity.mainActivity.screenGrid);
+				} else {
+					arrowSprite.setRotation(0);
+					//arrowSprite.setPosition(arrowSpriteX, arrowSpriteY);
+				}
+				
+				if( Math.abs(new_obj_width)>MainActivity.mainActivity.screenGrid*2 ) {
+					new_obj_width = MainActivity.mainActivity.screenGrid*2*(new_obj_width/Math.abs(new_obj_width));
+				}
+				arrowSprite.setWidth(new_obj_width);
+			}
+			break;
+		case TouchEvent.ACTION_UP:	
+			if(showArrow) {						
+				removeArrow();
+				int moveDirection = 0;
+				//plSprite.registerEntityModifier(new SequenceEntityModifier(new RotationByModifier(3, 90)) );
+				if( arrowSprite.getRotation()==0) {
+					moveDirection = arrowSprite.getWidth()>0 ? 1 : -1;
+					//plSprite.setSpeed(moveDirection, 0); TODO: 1
+				} else {
+					moveDirection = arrowSprite.getWidth()>0 ? 1 : -1;
+					//plSprite.setSpeed(0, moveDirection); TOFO: 2
+				}
+				plSprite.animate(50);
+				float pl_rotation = arrowSprite.getRotation();
+				if(moveDirection>0) {
+					pl_rotation+=180;
+				}
+				plSprite.setRotationCenter(plSprite.getWidthScaled()/2, plSprite.getHeightScaled()/2);
+				plSprite.setRotation(pl_rotation);
+				
+				numOfMoves++;
+				if( numOfMoves>NUM_OF_MOVIES_FOR_OPEN_NEXT_LEVEL ) {
+					MainGrid.mMainGrid.gbNextLevel.setSecondSprite();
+				}
+			}
+			break;
+		}			
+		//return true;
+		return super.onSceneTouchEvent(pSceneTouchEvent);
+	}
+	
+	private boolean touchInSprite(Sprite sprite, TouchEvent pSceneTouchEvent) {
+		final float mx = pSceneTouchEvent.getX();
+		final float my = pSceneTouchEvent.getY();
+		final float sdelta = (MainActivity.screenGrid-sprite.getWidthScaled())/2;
+		final float sx = sprite.getX()-sdelta;
+		final float sy = sprite.getY()-sdelta;
+		final float sx_end = sprite.getX()+sprite.getWidthScaled()+sdelta;
+		final float sy_end = sprite.getY()+sprite.getHeightScaled()+sdelta;
+		
+		return ( (mx<sx_end) && (mx>sx) && (my>sy) && (my<sy_end) );
+	}
+	
+	public void createArrow(GSprite faceSprite) {
+		plSprite = faceSprite;
+		if( arrowSprite==null ) {
+			arrowSprite = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.ARROW_ID, 10, MainActivity.mainActivity.screenGrid, -101, 0, null); 
+			attachChild(arrowSprite);
+		}
+		arrowSpriteX = plSprite.getX()+plSprite.getWidth()/2;
+		arrowSpriteY = plSprite.getY();		
+		arrowSprite.setPosition(arrowSpriteX, arrowSpriteY);
+		arrowSprite.setRotation(0);
+		arrowSprite.setWidth(MainActivity.screenGrid/2);
+		plSprite.setScale(1.2f);
+		arrowSprite.setVisible(true);
+		showArrow = true;
+	}
+	
+	public void removeArrow() {
+		arrowSprite.setVisible(false);
+		showArrow = false;
+		plSprite.setScale(1.0f);
+	}
+	
+	@Override
+	public void onKeyMenu(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if(this.hasChildScene()) {
+			/* Remove the menu and reset it. */
+			this.mMenuScene.back();
+		} else {
+			/* Attach the menu. */
+			this.setChildScene(this.mMenuScene, false, true, true);
+		}
+		super.onKeyMenu(keyCode, event);
+	}
+	
+	@Override
+	public void onShow() {
+		if( (MainActivity.mainActivity.mMusic!=null) && !MainActivity.isSoundMute ) {			
+			MainActivity.mainActivity.mMusic.play();
+		}
+		
+	}
+	
+	@Override
+	public void onHide() {
+		if( (MainActivity.mainActivity.mMusic!=null) && (MainActivity.mainActivity.mMusic.isPlaying()) )
+			MainActivity.mainActivity.mMusic.pause();
+	}
+	
+	public int getNumOfMoves() {
+		return numOfMoves;
+	}
+		
+}

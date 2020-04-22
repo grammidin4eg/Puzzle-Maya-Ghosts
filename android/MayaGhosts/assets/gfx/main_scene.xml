@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<texture version="1" file="main_scene.png" type="bitmap" width="256" height="256" pixelformat="RGBA_8888" minfilter="linear" magfilter="linear" wrapt="clamp" wraps="clamp" premultiplyalpha="false">
+    <!-- Created with TexturePacker http://www.codeandweb.com/texturepacker -->
+    <!-- $TexturePacker:SmartUpdate:b08c83f61832f4e5aea037777fe15274:1/1$ -->
+    <textureregion id="0" src="arrow.png" x="2" y="2" width="110" height="54" rotated="false" trimmed="true" srcx="8" srcy="3" srcwidth="120" srcheight="60"/>
+    <textureregion id="1" src="bomb.png" x="194" y="76" width="72" height="44" rotated="true" trimmed="true" srcx="3" srcy="14" srcwidth="78" srcheight="78"/>
+    <textureregion id="2" src="bomb_active.png" x="194" y="2" width="72" height="44" rotated="true" trimmed="true" srcx="3" srcy="14" srcwidth="78" srcheight="78"/>
+    <textureregion id="3" src="btn_play.png" x="68" y="82" width="64" height="64" rotated="false" trimmed="false" srcx="0" srcy="0" srcwidth="64" srcheight="64"/>
+    <textureregion id="4" src="btn_play_selected.png" x="68" y="150" width="64" height="64" rotated="false" trimmed="false" srcx="0" srcy="0" srcwidth="64" srcheight="64"/>
+    <textureregion id="5" src="btn_stop.png" x="2" y="82" width="64" height="64" rotated="false" trimmed="false" srcx="0" srcy="0" srcwidth="64" srcheight="64"/>
+    <textureregion id="6" src="btn_stop_selected.png" x="2" y="150" width="64" height="64" rotated="false" trimmed="false" srcx="0" srcy="0" srcwidth="64" srcheight="64"/>
+    <textureregion id="7" src="page.png" x="2" y="216" width="37" height="40" rotated="true" trimmed="false" srcx="0" srcy="0" srcwidth="37" srcheight="40"/>
+    <textureregion id="8" src="wall.png" x="114" y="2" width="78" height="78" rotated="false" trimmed="false" srcx="0" srcy="0" srcwidth="78" srcheight="78"/>
+</texture>

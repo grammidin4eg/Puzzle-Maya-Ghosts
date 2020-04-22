@@ -1,0 +1,4 @@
+1382532507299	Encapsulate field 'spriteId'
+1382698527774	Delete element
+1382768526841	Extract method 'loadGameRes'
+1382771247915	Encapsulate field 'childsAttached'

@@ -1,0 +1,347 @@
+package com.karachevtsevuu.mayaghosts;
+
+import java.util.Vector;
+
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
+import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.MoveModifier;
+import org.andengine.entity.modifier.MoveXModifier;
+import org.andengine.entity.modifier.ParallelEntityModifier;
+import org.andengine.entity.modifier.RotationAtModifier;
+import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.primitive.Line;
+import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.AnimatedSprite.IAnimationListener;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.util.color.Color;
+
+import android.util.Log;
+
+public class MainGrid {
+	
+	private Vector<GSprite> plSprite = new Vector<GSprite>();
+	public static int numOfSpirits = 0;
+	private int curLevel = 0;
+	public GButton gbMusic;
+	public GButton gbNextLevel;
+	private GButton gbBomb;
+	private Vector<GBlock> mBlocks;
+	public static MainGrid mMainGrid=null;
+	
+	public MainGrid() {
+		mMainGrid = this;
+		curLevel = MainActivity.mainActivity.loadLevel;
+	}
+	public GLevel loadLevel(int ind) {
+		return MainActivity.staticLevels.levelList.get(ind);
+	}	
+	
+	private GSprite genGSprite(SpriteObject sObject, final float x, final float y, float size, final float grid_size) {
+		if( size == 0) {
+			size = sObject.getWidth();
+		}
+		final float new_x = x + grid_size/2-size/2;
+		final float new_y = y+grid_size/2-size/2;		
+		return sObject.genGSprite(new_x, new_y, size, size);
+	}
+	
+	private void createBoom(final float boom_x, final float boom_y) {
+		final GSprite boom = MainActivity.mainActivity.sBoom.genGSprite(boom_x, boom_y, MainActivity.screenGrid, MainActivity.screenGrid);
+		MainActivity.mainActivity.runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				GameRoom.gameRoom.attachChild(boom);
+				boom.animate(50, false, new IAnimationListener() {
+					
+					@Override
+					public void onAnimationStarted(AnimatedSprite pAnimatedSprite,
+							int pInitialLoopCount) {
+					}
+					
+					@Override
+					public void onAnimationLoopFinished(AnimatedSprite pAnimatedSprite,
+							int pRemainingLoopCount, int pInitialLoopCount) {
+					}
+					
+					@Override
+					public void onAnimationFrameChanged(AnimatedSprite pAnimatedSprite,
+							int pOldFrameIndex, int pNewFrameIndex) {	
+					}
+					
+					@Override
+					public void onAnimationFinished(final AnimatedSprite pAnimatedSprite) {
+						// TODO Auto-generated method stub						
+						for (GBlock cur_block : mBlocks) {
+							if (pAnimatedSprite.collidesWith(cur_block.getSprite())) {
+								/*final Sprite hide_sprite = cur_block.getSprite();
+								MainActivity.mainActivity.runOnUiThread(new Runnable() {							
+									@Override
+									public void run() {								
+										hide_sprite.setVisible(false);								
+									}
+								});
+								break;*/
+							}
+						}
+						pAnimatedSprite.setVisible(false);
+						/*MainActivity.mainActivity.runOnUiThread(new Runnable() {							
+							@Override
+							public void run() {								
+								pAnimatedSprite.detachSelf();								
+							}
+						});*/
+						
+					}
+				});
+			}
+		});
+	}
+	
+	public void setGraphObject(Room room) {
+		final float grid = MainActivity.screenGrid;
+		final float margin = MainActivity.screenMargin;
+		//сетка
+		for(int x=0;x<11;x++) {
+			final float coord = (x*grid);
+			final Line line = new Line(coord, margin, coord, MainActivity.screenHeight-margin, 1, MainActivity.mainActivity.getVertexBufferObjectManager());
+			room.attachChild(line);
+		}
+		for(int y=0;y<11;y++) {
+			final float coord = margin+y*grid;
+			final Line line = new Line(0, coord, MainActivity.screenWidth, coord, 1, MainActivity.mainActivity.getVertexBufferObjectManager());
+			room.attachChild(line);
+		}
+		
+		plSprite.clear();
+		Vector<GBlock> blocks = new Vector<GBlock>();
+		GLevel cur_level = loadLevel(getLevel());
+		Log.d("GameDebug", "load level "+String.valueOf(getLevel()));
+		MainGrid.numOfSpirits = 0;
+		for(int xx = 0;xx<10;xx++) {	
+			for(int yy = 0;yy<10;yy++) {
+				int type = cur_level.getValue(xx, yy);
+				float xxx = (xx*grid);
+				float yyy = margin+grid*yy;
+				switch (type) {
+				case 8:
+					final Sprite bomb = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.BOMB_ID, grid/2, grid/2, xxx+grid/4, yyy+grid/4, null);
+					final Sprite bomb_active = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.BOMB_ACTIVE_ID, grid/2, grid/2, xxx+grid/4, yyy+grid/4, null);
+					room.attachChild(bomb_active);	
+					room.attachChild(bomb);	
+					gbBomb = new GButton(bomb, bomb_active);
+					GBlock newBombBlock = new GBlock();
+					newBombBlock.setSprite(bomb);
+					newBombBlock.setAction(new IGameAction() {
+						
+						@Override
+						public boolean RunCollision(final Sprite self) {
+							// TODO Auto-generated method stub
+							if( !self.isVisible() ) {
+								return false;
+							}
+							Log.d("GameDebug", "RunCollision");
+							if( gbBomb.isFlag() )
+								return true;
+							Log.d("GameDebug", "init timer");
+							gbBomb.setFlag(true);
+							final TimerHandler spriteTimerHandler = new TimerHandler(1, new ITimerCallback() {
+										private int mStep = 0;
+										@Override
+										public void onTimePassed(
+												final TimerHandler pTimerHandler) {
+											gbBomb.swapMainSecond();
+											mStep++;
+											if( mStep>4 )
+												pTimerHandler.setTimerSeconds(0.2f);
+											else
+											if( mStep>2 )
+												pTimerHandler.setTimerSeconds(0.5f);
+											if( mStep<7 ) {
+												pTimerHandler.reset();
+											} else {
+												final float boom_x = self.getX()-grid/2;
+												final float boom_y = self.getY()-grid/2;
+												createBoom(boom_x, boom_y);
+												createBoom(boom_x+grid, boom_y);
+												createBoom(boom_x-grid, boom_y);
+												
+												createBoom(boom_x+grid, boom_y+grid);
+												createBoom(boom_x-grid, boom_y+grid);
+												
+												createBoom(boom_x+grid, boom_y-grid);
+												createBoom(boom_x-grid, boom_y-grid);
+												
+												createBoom(boom_x, boom_y+grid);
+												createBoom(boom_x, boom_y-grid);
+												
+												pTimerHandler.setTimerSeconds(5);
+												gbBomb.Hide();
+											}//step >=7											
+											
+										}
+										
+									});
+							MainActivity.mainActivity.getEngine().registerUpdateHandler(spriteTimerHandler);
+							return true;
+						}
+						
+						@Override
+						public void Run(Sprite sprite, TouchEvent pSceneTouchEvent) {							
+						}
+					});
+					blocks.add(newBombBlock);
+					break;
+				case 11://бонус
+					final Sprite key = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.PAGE_ID, grid/2, grid/2, xxx+grid/4, yyy+grid/4, null);
+					key.setZIndex(10);
+					room.attachChild(key);					
+					GBlock newBonusBlock = new GBlock();
+					newBonusBlock.setSprite(key);
+					newBonusBlock.setAction(new IGameAction() {
+						
+						@Override
+						public boolean RunCollision(Sprite self) {
+							if( !self.isVisible() ) {
+								return false;
+							}
+							self.registerEntityModifier(
+									new SequenceEntityModifier(
+											new ParallelEntityModifier(
+													new ScaleModifier(1, 1, 2),
+													new RotationAtModifier(1, 0, 180, self.getWidthScaled()/2, self.getHeightScaled()/2),
+													new MoveModifier(1, self.getX(), self.getX()+grid*2, self.getY(), self.getY()+grid)
+											),
+											new ParallelEntityModifier(
+													new ScaleModifier(1, 2, 1.5f),
+													new RotationAtModifier(1, 0, 180, self.getWidthScaled()/2, self.getHeightScaled()/2),
+													new MoveModifier(1, self.getX()+grid*2, self.getX()+grid*4, self.getY()+grid, self.getY())
+											),
+											new ParallelEntityModifier(
+													new ScaleModifier(1, 1.5f, 1),
+													new RotationAtModifier(1, 0, 180, self.getWidthScaled()/2, self.getHeightScaled()/2),
+													new MoveModifier(1, self.getX()+grid*4, grid/2, self.getY(), grid/2),
+													new AlphaModifier(1, 1, 0)
+											)
+									) 
+							);
+							return false;							
+						}
+						
+						@Override
+						public void Run(Sprite sprite, TouchEvent pSceneTouchEvent) {
+							// TODO Auto-generated method stub							
+						}
+					});
+					blocks.add(newBonusBlock);
+					break;
+				case 7://звезда
+					final GSprite spirit = genGSprite(MainActivity.mainActivity.sSpirit, xxx, yyy, (grid-4), grid);
+					spirit.animate(40);					
+					room.attachChild(spirit);
+					GBlock newBlock = new GBlock();
+					newBlock.setSprite(spirit);
+					newBlock.setAction(new IGameAction() {
+						
+						@Override
+						public boolean RunCollision(Sprite self) {
+							if( !self.isVisible() ) {
+								return false;
+							}
+							self.setVisible(false);	
+							MainGrid.numOfSpirits--;
+							if( MainGrid.numOfSpirits < 1 ) {
+								nextLevel();
+							}
+							return false;
+						}
+						
+						@Override
+						public void Run(Sprite sprite, TouchEvent pSceneTouchEvent) {
+							// TODO Auto-generated method stub							
+						}
+					});
+					blocks.add(newBlock);
+					MainGrid.numOfSpirits++;
+					break;
+				case 5://стена
+					final Sprite wall = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.WALL_ID, grid, grid, xxx, yyy, null);
+					room.attachChild(wall);
+					GBlock newBlockWall = new GBlock();
+					newBlockWall.setSprite(wall);
+					blocks.add(newBlockWall);
+					break;
+				case 1://шарик
+				case 2:
+				case 3:
+					if( MainActivity.mainActivity.sBall!=null) {
+						final GSprite face = genGSprite(MainActivity.mainActivity.sBall, xxx,yyy,(grid-6), grid); 
+						room.attachChild(face);
+						//room.registerTouchArea(face);
+						plSprite.add(face);
+					}
+					break; 
+
+				default:
+					break;
+				}
+			}
+		}//*/
+		//заполнить массив блоков		
+		for(int i=0;i<plSprite.size();i++) {
+			GBlock newBlock = new GBlock();
+			newBlock.setSprite(plSprite.get(i));
+			blocks.add(newBlock);
+		}
+		
+		for(int i=0;i<plSprite.size();i++) {
+			plSprite.get(i).setBlocks(blocks);
+		}
+		
+		mBlocks = blocks;
+		
+		final float btns_size = grid;
+		final float next_level_x = MainActivity.screenWidth/4-btns_size/2;
+		final float music_x = MainActivity.screenWidth-next_level_x-btns_size;
+		final float btns_y = MainActivity.screenMargin/2-btns_size/2;
+		//вспомогательные кнопки
+		final Sprite next_level = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.BTN_PLAY_ID, btns_size, btns_size, next_level_x, btns_y, null); 		
+		final Sprite next_level_active = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.BTN_PLAY_SELECTED_ID, btns_size, btns_size, next_level_x, btns_y, MainActivity.mainActivity.aButtonNext);
+		gbNextLevel = new GButton(next_level, next_level_active);
+		room.attachChild(next_level);
+		room.attachChild(next_level_active);
+		room.registerTouchArea(next_level_active);
+		
+		final Sprite music = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.BTN_STOP_ID, btns_size, btns_size, music_x, btns_y, MainActivity.mainActivity.aButtons);
+		final Sprite music_disabled = MainActivity.genSprite(MainActivity.mainActivity.tp_mainscene_lib, tp_main_scene.BTN_STOP_SELECTED_ID, btns_size, btns_size, music_x, btns_y, MainActivity.mainActivity.aButtons);
+		gbMusic = new GButton(music, music_disabled);
+		if( MainActivity.mainActivity.isSoundMute ) {
+			gbMusic.setSecondSprite();
+		}		
+		room.attachChild(music);
+		room.attachChild(music_disabled);
+		room.registerTouchArea(music);		
+		
+		Log.d("GameDebug", "load level end");
+		
+		room.sortChildren();
+	}
+	
+	public Vector<GSprite> getPlList() {
+		return plSprite;
+	}
+	public int getLevel() {
+		return curLevel;
+	}
+	public void setLevel(int curLevel) {
+		this.curLevel = curLevel;
+	}
+	public void nextLevel() {
+		this.curLevel = this.curLevel+1;
+		GameRoom.gameRoom.replay();
+	}
+}

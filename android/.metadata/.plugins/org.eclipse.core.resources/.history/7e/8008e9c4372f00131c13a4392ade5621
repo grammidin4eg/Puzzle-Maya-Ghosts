@@ -1,0 +1,78 @@
+package com.karachevtsevuu.mayaghosts;
+
+import org.andengine.engine.handler.physics.PhysicsHandler;
+import org.andengine.entity.modifier.ParallelEntityModifier;
+import org.andengine.entity.modifier.RotationByModifier;
+import org.andengine.entity.modifier.ScaleModifier;
+import org.andengine.entity.modifier.SequenceEntityModifier;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.TextureOptions;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.texture.region.TiledTextureRegion;
+
+public class SpriveObject {
+	
+	private BitmapTextureAtlas mTexture = null;
+	private ITextureRegion mRegion = null;
+	private TiledTextureRegion mTiledRegion = null;
+	private Sprite mSprite = null;
+	private float mWidth = 0;
+	private float mHeight = 0;
+	private IGameAction mAction = null;
+	
+	public SpriveObject(final int width, final int height, final String name, final boolean tiled, final int tilecolumns, final int tilerows) {
+		mTexture = new BitmapTextureAtlas(MainActivity.mainActivity.getTextureManager(), width, height, TextureOptions.BILINEAR);
+		if( !tiled )
+			mRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mTexture, MainActivity.mainActivity, name, 0, 0);
+		else
+			mTiledRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(mTexture, MainActivity.mainActivity, name, 0, 0, tilecolumns, tilecolumns);
+		
+		mTexture.load();
+	}
+	
+	public void initTouchAction(IGameAction action) {
+		mAction = action;
+	}
+	
+	public Sprite genSprite(float x, float y, float width, float height) {
+		mSprite = new Sprite(x, y, width, height, mRegion,
+				MainActivity.mainActivity.getVertexBufferObjectManager()) {
+						
+			@Override
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+
+				if (mAction != null) {
+					mAction.Run(this, pSceneTouchEvent);
+				}
+				return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX, pTouchAreaLocalY);
+			}
+
+		};
+		mWidth = width;
+		mHeight = height;
+		return mSprite;
+	}
+	
+	public GSprite genGSprite(float x, float y, float width, float height) {
+		GSprite gsprite = new GSprite(x, y, mTiledRegion, MainActivity.mainActivity.getVertexBufferObjectManager());
+		mWidth = width;
+		mHeight = height;
+		return gsprite;
+	}
+	
+	public void setMod() {
+		SequenceEntityModifier mod = new SequenceEntityModifier(
+				new ParallelEntityModifier(
+						new ScaleModifier(3, 0.5f, 5),
+						new RotationByModifier(3, 90)));
+		mSprite.registerEntityModifier(mod);
+	}
+	
+	public ITextureRegion getRegion() {
+		return mRegion;
+	}
+
+}

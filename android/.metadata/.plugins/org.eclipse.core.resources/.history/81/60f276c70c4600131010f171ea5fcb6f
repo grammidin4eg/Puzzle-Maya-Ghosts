@@ -1,0 +1,338 @@
+package com.karachevtsevuu.mayaghosts;
+
+import java.io.IOException;
+
+import org.andengine.audio.music.Music;
+import org.andengine.audio.music.MusicFactory;
+import org.andengine.engine.camera.Camera;
+import org.andengine.engine.options.EngineOptions;
+import org.andengine.engine.options.ScreenOrientation;
+import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.scene.Scene;
+import org.andengine.entity.scene.menu.MenuScene;
+import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
+import org.andengine.entity.scene.menu.item.IMenuItem;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.extension.texturepacker.opengl.texture.util.texturepacker.TexturePack;
+import org.andengine.extension.texturepacker.opengl.texture.util.texturepacker.TexturePackLoader;
+import org.andengine.extension.texturepacker.opengl.texture.util.texturepacker.TexturePackTextureRegionLibrary;
+import org.andengine.extension.texturepacker.opengl.texture.util.texturepacker.exception.TexturePackParseException;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.util.debug.Debug;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.KeyEvent;
+
+/*
+ * TODO
+ * увеличить чувствительность клика (проверять размер ячейки)
+ */
+
+public class MainActivity extends SimpleBaseGameActivity implements
+		IOnMenuItemClickListener {
+
+	public static Camera mainCamera;
+	public static int screenWidth = 800;
+	public static int screenHeight = 600;
+	public static int screenGrid = 60;
+	public static int screenMargin = 100;
+	public static boolean isSoundMute = false;
+	public static RoomMaster roomMaster;
+	private boolean gameLoaded = false;
+	public static MainActivity mainActivity;
+	public static StaticLevel staticLevels;
+
+	public final static int SPRITE_BTN_MISIC_ENABLED = 0;
+	public final static int SPRITE_BTN_MISIC_DISABLED = 1;
+	public final static int SPRITE_BTN_NEXT_ENABLED = 2;
+	public final static int SPRITE_BTN_NEXT_DISABLED = 3;
+
+	// текстуры
+
+	public SpriteObject sSpirit;
+	public SpriteObject sBall;
+	public Music mMusic;
+	private SharedPreferences sPref;
+	public int loadLevel;
+	private TexturePack tp_menu;
+	public TexturePackTextureRegionLibrary tp_menu_lib;
+	private TexturePack tp_mainscene;
+	public TexturePackTextureRegionLibrary tp_mainscene_lib;
+	public IGameAction aButtons;
+	public IGameAction aButtonNext;
+	public Music mTitleMusic;
+	public SpriteObject sLogo;
+	private TexturePack tp_titlescene;
+	public TexturePackTextureRegionLibrary tp_titlescene_lib;
+	public SpriteObject sBoom;
+
+	public MainActivity() {
+		mainActivity = this;
+	}
+
+	@Override
+	public EngineOptions onCreateEngineOptions() {
+		DisplayMetrics metrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(metrics);
+		screenWidth = metrics.widthPixels;
+		screenHeight = metrics.heightPixels;
+		if (screenHeight < screenWidth) {
+			int buf = screenWidth;
+			screenWidth = screenHeight;
+			screenHeight = buf;
+		}
+		Log.d("Resolution", "resolution: " + screenWidth + " x " + screenHeight);
+		screenGrid = screenWidth / 10;
+		screenMargin = (screenHeight - screenWidth) / 2;
+		mainCamera = new Camera(0, 0, screenWidth, screenHeight);
+		RatioResolutionPolicy resolution = new RatioResolutionPolicy(
+				screenWidth, screenHeight);
+		EngineOptions opts = new EngineOptions(true,
+				ScreenOrientation.PORTRAIT_FIXED, resolution, mainCamera);
+		opts.getAudioOptions().setNeedsMusic(true).setNeedsSound(true);
+		loadParams();
+		return opts;
+	}
+
+	@Override
+	public synchronized void onGameDestroyed() {
+		saveParams();
+		super.onGameDestroyed();
+	}
+
+	private void loadParams() {
+		sPref = getPreferences(MODE_PRIVATE);
+		isSoundMute = sPref.getBoolean("SoundMute", false);
+		loadLevel = sPref.getInt("Level", 0);
+
+		//isSoundMute = true;
+		loadLevel = 5;
+	}
+
+	public void saveParams() {
+		sPref = getPreferences(MODE_PRIVATE);
+		Editor ed = sPref.edit();
+		ed.putBoolean("SoundMute", isSoundMute);
+		int level = 0;
+		if (MainGrid.mMainGrid != null) {
+			level = MainGrid.mMainGrid.getLevel();
+		}
+		ed.putInt("Level", level);
+		ed.commit();
+	}
+
+	@Override
+	protected void onCreateResources() {
+		//загрузить ресурсы загрузчика
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+		sLogo = new SpriteObject(449, 391, "logo.png", false, 0, 0);
+		//loadGameRes();
+		MusicFactory.setAssetBasePath("mfx/");
+		try {
+			this.mTitleMusic = MusicFactory.createMusicFromAsset(
+					this.mEngine.getMusicManager(), this, "main_menu.mp3");// gameplay.mp3
+			this.mTitleMusic.setLooping(true);
+			if(!isSoundMute)
+				this.mTitleMusic.play();
+		} catch (final IOException e) {
+			Debug.e(e);
+			Log.e("GameDebug", "Music load fault..." + e.toString());
+		}
+	}
+
+	public void loadGameRes() {
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+		sSpirit = new SpriteObject(512, 512, "spirit.png", true, 8, 8);
+		sBall = new SpriteObject(256, 256, "ball.png", true, 6, 6);
+		sBoom = new SpriteObject(128, 128, "boom.png", true, 3, 2);
+
+		aButtons = new IGameAction() {
+
+			@Override
+			public boolean RunCollision(Sprite self) {
+				return false;
+			}
+
+			@Override
+			public void Run(Sprite sprite, TouchEvent pSceneTouchEvent) {
+				if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+					if (isSoundMute) {
+						isSoundMute = false;
+						if (mMusic != null) {
+							mMusic.play();
+						}
+						// anim.stopAnimation(0);
+						MainGrid.mMainGrid.gbMusic.setMainSprite();
+					} else {
+						isSoundMute = true;
+						if (mMusic != null && mMusic.isPlaying()) {
+							mMusic.pause();
+						}
+						// anim.stopAnimation(1);
+						MainGrid.mMainGrid.gbMusic.setSecondSprite();
+					}
+				}
+			}
+		};
+		
+		aButtonNext = new IGameAction() {
+			
+			@Override
+			public boolean RunCollision(Sprite self) {
+				return false;
+			}
+			
+			@Override
+			public void Run(Sprite sprite, TouchEvent pSceneTouchEvent) {				
+				if ((pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN)
+						&& (GameRoom.gameRoom.getNumOfMoves() > GameRoom.NUM_OF_MOVIES_FOR_OPEN_NEXT_LEVEL)) {
+					MainActivity.mainActivity.runOnUiThread(new Runnable() {
+
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							AlertDialog.Builder dlgAlert = new AlertDialog.Builder(
+									MainActivity.this);
+							//dlgAlert.setTitle("");
+							dlgAlert.setMessage("Run to next level?");
+							dlgAlert.setPositiveButton("Next Level",
+									new DialogInterface.OnClickListener() {
+										public void onClick(
+												DialogInterface dialog,
+												int whichButton) {
+											MainGrid.mMainGrid.nextLevel();
+										}
+									});
+							dlgAlert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {								
+								@Override
+								public void onClick(DialogInterface dialog, int which) {									
+								}
+							});
+							//dlgAlert.setCancelable(true);
+							dlgAlert.create().show();
+						}
+					});				
+				}
+			}
+		};
+
+		try {
+			tp_menu = new TexturePackLoader(getTextureManager(), "gfx/").loadFromAsset(getAssets(), "menu.xml");
+			tp_menu.loadTexture();
+			tp_menu_lib = tp_menu.getTexturePackTextureRegionLibrary();
+
+			tp_mainscene = new TexturePackLoader(getTextureManager(), "gfx/").loadFromAsset(getAssets(), "main_scene.xml");
+			tp_mainscene.loadTexture();
+			tp_mainscene_lib = tp_mainscene.getTexturePackTextureRegionLibrary();
+			
+			tp_titlescene = new TexturePackLoader(getTextureManager(), "gfx/").loadFromAsset(getAssets(), "title.xml");
+			tp_titlescene.loadTexture();
+			tp_titlescene_lib = tp_titlescene.getTexturePackTextureRegionLibrary();
+		} catch (final TexturePackParseException e) {
+			Debug.e(e);
+			Log.e("GameDebug", "TexturePackLoader fault..." + e.toString());
+		}
+
+		// загрузка музыки
+		MusicFactory.setAssetBasePath("mfx/");
+		try {
+			this.mMusic = MusicFactory.createMusicFromAsset(
+					this.mEngine.getMusicManager(), this, "gameplay.mp3");// gameplay.mp3
+			this.mMusic.setLooping(true);
+			// this.mMusic.play();
+		} catch (final IOException e) {
+			Debug.e(e);
+			Log.e("GameDebug", "Music load fault..." + e.toString());
+		}
+
+		// загрузка уровней
+		staticLevels = new StaticLevel();
+		// staticLevels = null;
+	}
+
+	public static Sprite genSprite(
+			TexturePackTextureRegionLibrary texturePackLibrary, int pID,
+			float width, float height, float x, float y,
+			final IGameAction action) {
+		final ITextureRegion textureRegion = texturePackLibrary.get(pID);
+		Sprite sprite = new Sprite(x, y, width, height, textureRegion,
+				MainActivity.mainActivity.getVertexBufferObjectManager()) {
+
+			@Override
+			public boolean onAreaTouched(TouchEvent pSceneTouchEvent,
+					float pTouchAreaLocalX, float pTouchAreaLocalY) {
+				if (action != null)
+					action.Run(this, pSceneTouchEvent);
+				return super.onAreaTouched(pSceneTouchEvent, pTouchAreaLocalX,
+						pTouchAreaLocalY);
+			}
+
+		};
+
+		return sprite;
+	}
+
+	@Override
+	protected Scene onCreateScene() {
+		roomMaster = new RoomMaster();
+		gameLoaded = true;
+		return roomMaster;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (!gameLoaded) {
+				return true;
+			}
+			if (gameLoaded && (roomMaster != null)) {
+				roomMaster.onKeyBack(keyCode, event);
+			}
+			return true;
+		}
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			roomMaster.onKeyMenu(keyCode, event);
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		android.os.Process.killProcess(android.os.Process.myPid());
+	}
+
+	@Override
+	public boolean onMenuItemClicked(final MenuScene pMenuScene,
+			final IMenuItem pMenuItem, final float pMenuItemLocalX,
+			final float pMenuItemLocalY) {
+		Log.d("GameDebug",
+				"onMenuItemClicked " + String.valueOf(pMenuItem.getID()));
+		switch (pMenuItem.getID()) {
+		case GameRoom.MENU_RESET:
+			// Restart the animation.
+			GameRoom.gameRoom.replay();
+
+			// Remove the menu and reset it.
+			GameRoom.gameRoom.clearChildScene();
+			GameRoom.gameRoom.mMenuScene.reset();
+			return true;
+		case GameRoom.MENU_QUIT:
+			// End Activity.
+			MainActivity.mainActivity.finish();
+			return true;
+		default:
+			return false;
+		}
+	}
+
+}

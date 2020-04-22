@@ -1,0 +1,32 @@
+package com.karachevtsevuu.mayaghosts;
+
+import org.andengine.engine.handler.physics.PhysicsHandler;
+import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
+public class GSprite extends AnimatedSprite {
+	private final PhysicsHandler mPhysicsHandler;
+	private float velocity = 200.0f;
+	private int xmove = 0;
+	private int ymove = 0;
+
+	public GSprite(final float pX, final float pY, final ITiledTextureRegion pTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
+		this.mPhysicsHandler = new PhysicsHandler(this);
+		this.registerUpdateHandler(this.mPhysicsHandler);
+		this.mPhysicsHandler.setVelocity(velocity, velocity);
+	}
+
+	public void setSpeed(int x, int y) {
+		xmove = x;
+		ymove = y;
+	}
+	
+	@Override
+	protected void onManagedUpdate(final float pSecondsElapsed) {		
+		this.mPhysicsHandler.setVelocityX(velocity*xmove);		
+		this.mPhysicsHandler.setVelocityY(velocity*ymove);
+		super.onManagedUpdate(pSecondsElapsed);
+	}
+}
