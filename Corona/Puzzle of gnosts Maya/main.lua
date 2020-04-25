@@ -10,7 +10,7 @@
 -- https://docs.coronalabs.com/api/library/display/newText.html
 -- https://rgbcolorcode.com/
 
-local composer = require( "composer" )
+local levelManager = require( "level_manager" )
 
  -- Removes status bar on iOS
 display.setStatusBar( display.HiddenStatusBar ) 
@@ -22,4 +22,4 @@ else
 	native.setProperty( "androidSystemUiVisibility", "immersiveSticky" ) 
 end
 
-composer.gotoScene( "game", { params={ } } )
+levelManager.loadLevel(1)

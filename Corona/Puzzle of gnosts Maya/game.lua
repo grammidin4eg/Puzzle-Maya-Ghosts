@@ -13,6 +13,15 @@ function scene:create( event )
     -- local tapText = display.newText( sceneGroup, 'score: 0', 105, 0, native.systemFont, 50)
     -- tapText:setFillColor( 0, 1, 0 )
 
+    -- верхняя картинка
+    local logo = display.newImageRect(sceneGroup, 'top.png', common.screenWidth, common.margin)
+    logo.x = display.contentCenterX
+    logo.y = common.margin / 2
+    -- нижняя картинка
+    local logo = display.newImageRect(sceneGroup, 'bottom.png', common.screenWidth, common.margin)
+    logo.x = display.contentCenterX
+    logo.y = common.screenHeight - common.margin / 2
+
     -- отрисовка сетки
     render.gridLines(sceneGroup)
 end
