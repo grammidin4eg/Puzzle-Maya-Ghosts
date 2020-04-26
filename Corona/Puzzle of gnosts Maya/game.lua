@@ -6,6 +6,7 @@ local scene = composer.newScene()
 function scene:create( event )
     print('game create')
     local sceneGroup = self.view
+    local params = event.params
     -- local myRectangle = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, common.screenWidth, common.screenHeight*2 )
     -- myRectangle:setFillColor( 0.4, 0.4, 1 )
 
@@ -14,16 +15,29 @@ function scene:create( event )
     -- tapText:setFillColor( 0, 1, 0 )
 
     -- верхняя картинка
-    local logo = display.newImageRect(sceneGroup, 'top.png', common.screenWidth, common.margin)
-    logo.x = display.contentCenterX
-    logo.y = common.margin / 2
+    local top = display.newImageRect(sceneGroup, 'top.png', common.screenWidth, common.margin)
+    top.x = display.contentCenterX
+    top.y = common.margin / 2 - 10
+
+    local top_sub = display.newImageRect(sceneGroup, 'top_sub.png', common.screenWidth, 12)
+    top_sub.x = display.contentCenterX
+    top_sub.y = common.margin - 2
     -- нижняя картинка
-    local logo = display.newImageRect(sceneGroup, 'bottom.png', common.screenWidth, common.margin)
-    logo.x = display.contentCenterX
-    logo.y = common.screenHeight - common.margin / 2
+    local bottom_sub = display.newImageRect(sceneGroup, 'bottom_sub.png', common.screenWidth, 12)
+    bottom_sub.x = display.contentCenterX
+    bottom_sub.y = common.screenHeight - common.margin + 6
+
+    local bottom = display.newImageRect(sceneGroup, 'bottom.png', common.screenWidth, common.margin)
+    bottom.x = display.contentCenterX
+    bottom.y = common.screenHeight - common.margin / 2 + 12
 
     -- отрисовка сетки
     render.gridLines(sceneGroup)
+
+    -- вывод объектов на экран
+    render.drawObjs(params.level, sceneGroup)
+
+    print('data in game:', params.level[1]["type"])
 end
 
 -- show()

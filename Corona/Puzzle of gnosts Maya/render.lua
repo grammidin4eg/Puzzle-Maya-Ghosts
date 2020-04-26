@@ -28,6 +28,24 @@ local function gridLines(group)
     grid:setStrokeColor( 0.7, 0.7, 0.7, 1 )
     grid.strokeWidth = 3
 end
+
+local function indexToPos(index)
+    return {
+        x=1,
+        y=1
+    }
+end
+
+-- отрисовка объектов
+local function drawObjs(data, group)
+    for key, value in pairs(data) do
+        local obj = display.newImageRect(group, value['image'], common.cellSize, common.cellSize)
+        local pos = indexToPos(key)
+        obj.x = common.cellSize / 2 + (pos.x * common.cellSize)
+        obj.y = common.margin + (common.cellSize / 2) + (pos.y * common.cellSize)
+    end
+end
 render.gridLines = gridLines
+render.drawObjs = drawObjs
 
 return render
