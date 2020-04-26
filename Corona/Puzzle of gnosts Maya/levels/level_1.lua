@@ -2,10 +2,10 @@ local levelTemplates = require("levels.level_templates")
 local level = {}
 -- 1
 level[1] = levelTemplates.get(1)
-level[2] = levelTemplates.get(1)
-level[3] = levelTemplates.get(1)
-level[4] = levelTemplates.get(1)
-level[5] = levelTemplates.get(1)
+level[2] = levelTemplates.get(2)
+level[3] = levelTemplates.get(3)
+level[4] = levelTemplates.get(4)
+level[5] = levelTemplates.get(5)
 level[6] = levelTemplates.get(1)
 level[7] = levelTemplates.get(1)
 -- 2

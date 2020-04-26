@@ -38,11 +38,42 @@ end
 
 -- отрисовка объектов
 local function drawObjs(data, group)
-    for key, value in pairs(data) do
-        local obj = display.newImageRect(group, value['image'], common.cellSize, common.cellSize)
-        local pos = indexToPos(key)
-        obj.x = common.cellSize / 2 + (pos.x * common.cellSize)
-        obj.y = common.margin + (common.cellSize / 2) + (pos.y * common.cellSize)
+    for y = 0, common.cellYCount-1 do
+        for x = 0, common.cellXCount-1 do
+            local index = (y * 7) + x + 1
+            -- обычная картинка или анимация
+            if data[index]['frames'] > 1 then
+                local back = display.newImageRect(group, 'back.png', common.cellSize, common.cellSize)
+                back.x = common.cellSize / 2 + (x * common.cellSize)
+                back.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+
+                local imageSheet = graphics.newImageSheet(data[index]['image'],  {
+                    width = 66,
+                    height = 66,
+                    numFrames = data[index]['frames']
+                })
+                local sequenceData = {
+                    name="run",
+                    start=1,
+                    count=data[index]['frames']-1,
+                    time=5000,
+                    loopCount = 0,   -- Optional ; default is 0 (loop indefinitely)
+                    loopDirection = "bounce"    -- Optional ; values include "forward" or "bounce"
+                }
+                local obj = display.newSprite( group, imageSheet, sequenceData )
+                obj.x = common.cellSize / 2 + (x * common.cellSize)
+                obj.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+                --obj:setFrame(1)
+                obj:play()
+                obj.width = common.cellSize
+                obj.height = common.cellSize
+            else
+                local obj = display.newImageRect(group, data[index]['image'], common.cellSize, common.cellSize)
+                obj.x = common.cellSize / 2 + (x * common.cellSize)
+                obj.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+            end
+            -- https://docs.coronalabs.com/guide/media/spriteAnimation/index.html
+        end
     end
 end
 render.gridLines = gridLines
