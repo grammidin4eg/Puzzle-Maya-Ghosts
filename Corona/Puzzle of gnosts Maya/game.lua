@@ -1,14 +1,15 @@
 local common = require("common")
 local render = require("render")
 local composer = require ("composer")
+local matrix = require ("matrix")
 
 local scene = composer.newScene()
 function scene:create( event )
     print('game create')
     local sceneGroup = self.view
     local params = event.params
-    -- local myRectangle = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, common.screenWidth, common.screenHeight*2 )
-    -- myRectangle:setFillColor( 0.4, 0.4, 1 )
+     local back = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, common.screenWidth, common.screenHeight*2 )
+     back:setFillColor( 0, 0, 0 )
 
     -- очки
     -- local tapText = display.newText( sceneGroup, 'score: 0', 105, 0, native.systemFont, 50)
@@ -35,9 +36,32 @@ function scene:create( event )
     render.gridLines(sceneGroup)
 
     -- вывод объектов на экран
-    render.drawObjs(params.level, sceneGroup)
+    local gData = render.drawObjs(params.level, sceneGroup)
 
-    print('data in game:', params.level[1]["type"])
+    -- подписка на события
+    -- https://docs.coronalabs.com/guide/events/touchMultitouch/index.html
+    local selectedPlayer = nil
+    local function touchListener( event )
+ 
+        if ( event.phase == "began" ) then
+            local gObj = matrix.findElementWithCoord(gData, event.x, event.y)
+            if gObj and gObj.type == 'player' and gObj.obj then
+                selectedPlayer = gObj.obj
+                selectedPlayer.width = selectedPlayer.width * 1.5
+                selectedPlayer.height = selectedPlayer.height * 1.5
+            end
+        elseif ( event.phase == "moved" ) then
+            print( "touch location in content coordinates = " .. event.x .. "," .. event.y )
+        elseif ( event.phase == "ended" ) then
+            if selectedPlayer then
+                selectedPlayer.width = selectedPlayer.width / 1.5
+                selectedPlayer.height = selectedPlayer.height / 1.5
+                selectedPlayer = nil
+            end
+        end
+        return true  -- Prevents tap/touch propagation to underlying objects
+    end
+    back:addEventListener( "touch", touchListener )
 end
 
 -- show()

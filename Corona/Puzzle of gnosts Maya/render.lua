@@ -38,6 +38,7 @@ end
 
 -- отрисовка объектов
 local function drawObjs(data, group)
+    local gData = {}
     for y = 0, common.cellYCount-1 do
         for x = 0, common.cellXCount-1 do
             local index = (y * 7) + x + 1
@@ -63,18 +64,23 @@ local function drawObjs(data, group)
                 local obj = display.newSprite( group, imageSheet, sequenceData )
                 obj.x = common.cellSize / 2 + (x * common.cellSize)
                 obj.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+                -- table.insert(gData, {x=obj.x, y=obj.y,type=data[index]['type']})
                 --obj:setFrame(1)
-                obj:play()
-                obj.width = common.cellSize
-                obj.height = common.cellSize
+                --obj:play()
+                --obj.width = common.cellSize
+                --obj.height = common.cellSize
+                gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj}
             else
                 local obj = display.newImageRect(group, data[index]['image'], common.cellSize, common.cellSize)
                 obj.x = common.cellSize / 2 + (x * common.cellSize)
                 obj.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+                gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj}
             end
             -- https://docs.coronalabs.com/guide/media/spriteAnimation/index.html
+            --for key, value in pairs(gData) do
         end
     end
+    return gData;
 end
 render.gridLines = gridLines
 render.drawObjs = drawObjs
