@@ -51,7 +51,12 @@ function scene:create( event )
                 selectedPlayer.height = selectedPlayer.height * 1.5
             end
         elseif ( event.phase == "moved" ) then
-            print( "touch location in content coordinates = " .. event.x .. "," .. event.y )
+            -- event.xStart / event.yStart
+            if selectedPlayer then
+                local divX = math.abs(event.x - event.xStart)
+                local divY = math.abs(event.y - event.yStart)
+                print( "touch X,Y = " .. divX .. "," .. divY )
+            end
         elseif ( event.phase == "ended" ) then
             if selectedPlayer then
                 selectedPlayer.width = selectedPlayer.width / 1.5
