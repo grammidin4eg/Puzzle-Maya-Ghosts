@@ -40,7 +40,14 @@ function scene:create( event )
 
     -- подписка на события
     -- https://docs.coronalabs.com/guide/events/touchMultitouch/index.html
+    -- выбранный шар
     local selectedPlayer = nil
+    -- стрелка
+    local marker = display.newImageRect(sceneGroup, 'marker.png', common.cellSize, common.cellSize * 1.5)
+    marker.x = -100
+    marker.y = -100
+    -- куда перемещаемся
+    local direction = 'none'
     local function touchListener( event )
  
         if ( event.phase == "began" ) then
@@ -51,17 +58,57 @@ function scene:create( event )
                 selectedPlayer.height = selectedPlayer.height * 1.5
             end
         elseif ( event.phase == "moved" ) then
-            -- event.xStart / event.yStart
+            -- event.xStart / event.yStart math.abs
             if selectedPlayer then
                 local divX = math.abs(event.x - event.xStart)
                 local divY = math.abs(event.y - event.yStart)
-                print( "touch X,Y = " .. divX .. "," .. divY )
+                local div = divX
+                local neg = 1
+                if divX > common.cellSize / 2 or divY > common.cellSize / 2 then
+                    if divX > divY then
+                        direction = 'right'
+                        if event.x < event.xStart then
+                            neg = -1
+                            direction = 'left'
+                        end
+                        marker.rotation = 90 * neg
+                        marker.x = selectedPlayer.x + neg * common.cellSize / 2
+                        marker.y = selectedPlayer.y
+                    else
+                        
+                        if event.y < event.yStart then
+                            neg = -1
+                            marker.rotation = 0
+                            direction = 'top'
+                        else
+                            marker.rotation = 180
+                            direction = 'bottom'
+                        end
+                        div = divY
+                        marker.x = selectedPlayer.x
+                        marker.y = selectedPlayer.y + neg * common.cellSize / 2
+                    end
+
+                    if div > common.cellSize * 1.5 then
+                        div = common.cellSize * 1.5
+                    end
+                    if div < common.cellSize / 2 then
+                        div = common.cellSize / 2
+                    end
+                    marker.height = div
+                    selectedPlayer:toFront()
+                else
+                    marker.x = -100
+                    direction = 'none'
+                end
             end
         elseif ( event.phase == "ended" ) then
             if selectedPlayer then
                 selectedPlayer.width = selectedPlayer.width / 1.5
                 selectedPlayer.height = selectedPlayer.height / 1.5
                 selectedPlayer = nil
+                marker.x = -100
+                print('direction: '..direction)
             end
         end
         return true  -- Prevents tap/touch propagation to underlying objects
