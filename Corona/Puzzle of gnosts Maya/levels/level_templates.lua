@@ -20,5 +20,9 @@ templates[6] = add('helper', 'back.png', 'right', 1)
 local function get(id)
     return templates[id]
 end
+local function isWall(gObj)
+    return ((gObj.type == 'wall') or (gObj.type == 'player'))
+end
 levelTemplates.get = get
+levelTemplates.isWall = isWall
 return levelTemplates

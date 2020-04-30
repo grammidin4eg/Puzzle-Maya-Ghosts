@@ -109,7 +109,10 @@ function scene:create( event )
                 selectedPlayer.width = selectedPlayer.width / 1.5
                 selectedPlayer.height = selectedPlayer.height / 1.5
                 if direction ~= 'none' then
-                    matrix.moveBall(gData, selectedGPlayer, direction)
+                    local toObj = matrix.moveBall(gData, selectedGPlayer, direction)
+                    if toObj then
+                        transition.moveTo( selectedPlayer, { x=toObj.x, y=toObj.y, toObj.time } )
+                    end
                 end
                 selectedPlayer = nil
                 selectedGPlayer = nil

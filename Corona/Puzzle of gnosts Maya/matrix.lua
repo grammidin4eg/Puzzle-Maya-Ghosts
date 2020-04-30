@@ -1,4 +1,5 @@
 local common = require("common")
+local levelTemplates = require("levels.level_templates")
 -- контроль матрицы
 local matrix={}
 function findElementWithCoord(data, x, y)
@@ -16,11 +17,12 @@ function findElementWithCoord(data, x, y)
     end
     return nil
 end
-function objPosition(obj)
+function objPosition(obj, time)
     print('objPosition row'..obj.row..' col'..obj.col)
     return {
         x = obj.x,
-        y = obj.y
+        y = obj.y,
+        time = time
     }
 end
 function getFrom(data, row, col)
@@ -28,7 +30,36 @@ function getFrom(data, row, col)
     return data[index]
 end
 function goToDirection(data, row, col, direction)
-    return nil
+    local newRow = row
+    local newCol = col
+
+    if direction == 'left' then
+        newRow = row - 1
+        if newRow < 0 then
+            return nil
+        end
+    elseif direction == 'right' then
+        newRow = row + 1
+        if newRow > (common.cellXCount - 1) then
+            return nil
+        end
+    elseif direction == 'top' then
+        newCol = col - 1
+        if newCol < 0 then
+            return nil
+        end
+    elseif direction == 'bottom' then
+        newCol = col + 1
+        if newRow > (common.cellYCount - 1) then
+            return nil
+        end
+    end
+
+    local newObj = getFrom(data, newRow, newCol)
+    if levelTemplates.isWall(newObj) then
+        return nil
+    end
+    return newObj
 end
 function moveBall(data, gObj, direction)
     print('move to '..direction..' obj: '..tostring(gObj))
@@ -41,13 +72,16 @@ function moveBall(data, gObj, direction)
     local col = gObj.col
     local lastObj = gObj
     local curPos = goToDirection(data, row, col, direction)
+    local rows = 0
     while curPos do
-        
+        lastObj = curPos
+        curPos = goToDirection(data, row, col, direction)
+        rows = rows + 1
     end
     if lastObj.row == gObj.row and lastObj.col == gObj.col then
         return nil
     else
-        return objPosition(lastObj)
+        return objPosition(lastObj, rows * 1000)
     end
 end
 matrix.findElementWithCoord = findElementWithCoord
