@@ -18,11 +18,15 @@ function findElementWithCoord(data, x, y)
     return nil
 end
 function objPosition(obj, time)
-    print('objPosition row'..obj.row..' col'..obj.col)
+    print('objPosition row: '..obj.row..' col: '..obj.col)
+    local index = obj.row + 1 + (obj.col * 7)
     return {
         x = obj.x,
         y = obj.y,
-        time = time
+        time = time,
+        row=obj.row,
+        col=obj.col,
+        index=index
     }
 end
 function getFrom(data, row, col)
@@ -56,14 +60,17 @@ function goToDirection(data, row, col, direction)
     end
 
     local newObj = getFrom(data, newRow, newCol)
+    if newObj == nil then
+        return nil
+    end
     if levelTemplates.isWall(newObj) then
         return nil
     end
     return newObj
 end
 function moveBall(data, gObj, direction)
-    print('move to '..direction..' obj: '..tostring(gObj))
-    print('row '..gObj.row..' col: '..gObj.col)
+    -- print('move to '..direction..' obj: '..tostring(gObj))
+    -- print('row '..gObj.row..' col: '..gObj.col)
     --for key, value in ipairs(data) do
         --print('>> row: '..value.row..' col: '..value.col..' index: '..key)
         --print('index test: row: '..data[key].row..' col: '..data[key].col)
@@ -73,15 +80,20 @@ function moveBall(data, gObj, direction)
     local lastObj = gObj
     local curPos = goToDirection(data, row, col, direction)
     local rows = 0
-    while curPos do
+    while curPos and rows < common.cellXCount do
         lastObj = curPos
         curPos = goToDirection(data, row, col, direction)
+        if curPos then
+            row = curPos.row
+            col = curPos.col
+        end
+        -- print('goToDirection row: '..row..' col: '..col..' curPos: '..tostring(curPos))
         rows = rows + 1
     end
     if lastObj.row == gObj.row and lastObj.col == gObj.col then
         return nil
     else
-        return objPosition(lastObj, rows * 1000)
+        return objPosition(lastObj, rows * 200)
     end
 end
 matrix.findElementWithCoord = findElementWithCoord

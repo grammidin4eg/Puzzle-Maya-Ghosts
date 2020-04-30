@@ -49,8 +49,20 @@ function scene:create( event )
     marker.y = -100
     -- куда перемещаемся
     local direction = 'none'
+
+    -- после перемещения
+    local movedBall = nil
+    local function onMoveComplete()
+        print('move complete: '..tostring(movedBall))
+        movedBall:pause()
+        movedBall = nil
+    end
+    -- обработка касания
     local function touchListener( event )
  
+        if movedBall then
+            return
+        end
         if ( event.phase == "began" ) then
             local gObj = matrix.findElementWithCoord(gData, event.x, event.y)
             if gObj and gObj.type == 'player' and gObj.obj then
@@ -111,7 +123,19 @@ function scene:create( event )
                 if direction ~= 'none' then
                     local toObj = matrix.moveBall(gData, selectedGPlayer, direction)
                     if toObj then
-                        transition.moveTo( selectedPlayer, { x=toObj.x, y=toObj.y, toObj.time } )
+                        print('time: ', toObj.time)
+                        selectedPlayer:play()
+                        movedBall = selectedPlayer
+                        transition.moveTo( selectedPlayer, { x=toObj.x, y=toObj.y, time=toObj.time, onComplete=onMoveComplete } )
+                        local index = toObj.index
+                        gData[index].x = toObj.x
+                        gData[index].y = toObj.y
+                        gData[index].row = toObj.row
+                        gData[index].col = toObj.col
+                        gData[index].obj = selectedPlayer
+                        gData[index].type = selectedGPlayer.type
+                        selectedGPlayer.type = 'back'
+                        -- common.printObj('new gData[index]', gData[index])
                     end
                 end
                 selectedPlayer = nil
