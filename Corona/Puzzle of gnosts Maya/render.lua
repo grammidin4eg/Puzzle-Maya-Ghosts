@@ -69,12 +69,12 @@ local function drawObjs(data, group)
                 --obj:play()
                 --obj.width = common.cellSize
                 --obj.height = common.cellSize
-                gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj}
+                gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj,row=x,col=y}
             else
                 local obj = display.newImageRect(group, data[index]['image'], common.cellSize, common.cellSize)
                 obj.x = common.cellSize / 2 + (x * common.cellSize)
                 obj.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
-                gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj}
+                gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj,row=x,col=y}
             end
             -- https://docs.coronalabs.com/guide/media/spriteAnimation/index.html
             --for key, value in pairs(gData) do

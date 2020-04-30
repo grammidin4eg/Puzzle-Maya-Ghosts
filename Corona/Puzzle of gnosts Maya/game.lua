@@ -42,6 +42,7 @@ function scene:create( event )
     -- https://docs.coronalabs.com/guide/events/touchMultitouch/index.html
     -- выбранный шар
     local selectedPlayer = nil
+    local selectedGPlayer = nil
     -- стрелка
     local marker = display.newImageRect(sceneGroup, 'marker.png', common.cellSize, common.cellSize * 1.5)
     marker.x = -100
@@ -54,6 +55,7 @@ function scene:create( event )
             local gObj = matrix.findElementWithCoord(gData, event.x, event.y)
             if gObj and gObj.type == 'player' and gObj.obj then
                 selectedPlayer = gObj.obj
+                selectedGPlayer = gObj
                 selectedPlayer.width = selectedPlayer.width * 1.5
                 selectedPlayer.height = selectedPlayer.height * 1.5
             end
@@ -106,9 +108,12 @@ function scene:create( event )
             if selectedPlayer then
                 selectedPlayer.width = selectedPlayer.width / 1.5
                 selectedPlayer.height = selectedPlayer.height / 1.5
+                if direction ~= 'none' then
+                    matrix.moveBall(gData, selectedGPlayer, direction)
+                end
                 selectedPlayer = nil
+                selectedGPlayer = nil
                 marker.x = -100
-                print('direction: '..direction)
             end
         end
         return true  -- Prevents tap/touch propagation to underlying objects
