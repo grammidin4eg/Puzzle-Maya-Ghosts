@@ -29,6 +29,35 @@ local function gridLines(group)
     grid.strokeWidth = 3
 end
 
+local bonusesObjs = {}
+local function bonuses(group)  
+    for i = 1, 4 do
+        bonusesObjs[i] = display.newImageRect(group, 'mask_off.png', 66, 88)
+        if i < 3 then
+            bonusesObjs[i].x = 80 + (i - 1) * 100
+        else
+            bonusesObjs[i].x = common.screenWidth - (4 - i) * 100 - 88
+        end        
+        bonusesObjs[i].y = common.margin - 100
+    end  
+end
+
+local function updateBonus(group, value)
+    local index = 4 - value
+    local maskOn = display.newImageRect(group, 'mask_on.png', 66, 88)
+    maskOn.x = bonusesObjs[index].x
+    maskOn.y = bonusesObjs[index].y
+    bonusesObjs[index].x = -100
+end
+
+local function gotoBonus(obj, value, delay)
+    local index = 4 - value
+    obj:toFront()
+    print('gotoBonus: ', obj, value, delay, index)
+    print('obj', bonusesObjs, bonusesObjs[index])
+    transition.moveTo(obj, {time=1000, x = bonusesObjs[index].x, y = bonusesObjs[index].y, delay=delay})
+end
+
 local function indexToPos(index)
     return {
         x=1,
@@ -84,5 +113,8 @@ local function drawObjs(data, group)
 end
 render.gridLines = gridLines
 render.drawObjs = drawObjs
+render.bonuses = bonuses
+render.updateBonus = updateBonus
+render.gotoBonus = gotoBonus
 
 return render

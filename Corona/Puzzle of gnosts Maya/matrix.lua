@@ -68,7 +68,7 @@ function goToDirection(data, row, col, direction)
     end
     return newObj
 end
-function moveBall(data, gObj, direction)
+function moveBall(data, gObj, direction, onfindBonus)
     -- print('move to '..direction..' obj: '..tostring(gObj))
     -- print('row '..gObj.row..' col: '..gObj.col)
     --for key, value in ipairs(data) do
@@ -89,6 +89,10 @@ function moveBall(data, gObj, direction)
         end
         -- print('goToDirection row: '..row..' col: '..col..' curPos: '..tostring(curPos))
         rows = rows + 1
+        if curPos and curPos.type == 'spirit' then 
+            print('find in matrix')
+            onfindBonus(curPos, rows * 200)
+        end
     end
     if lastObj.row == gObj.row and lastObj.col == gObj.col then
         return nil

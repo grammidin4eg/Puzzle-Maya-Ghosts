@@ -38,6 +38,26 @@ function scene:create( event )
     -- вывод объектов на экран
     local gData = render.drawObjs(params.level, sceneGroup)
 
+    -- бонусы
+    local bonuses = 4
+    render.bonuses(sceneGroup)
+
+    -- события коллизии с бонусом
+    local function takeBonus(obj)
+        print(common.printObj('takeBonus',obj))
+        bonuses = bonuses - 1
+        -- счетчик на экране
+        render.updateBonus(sceneGroup, bonuses)
+        -- todo если меньше 1 - победили
+    end
+
+    local function findBonus(gObj, delay)
+        print(common.printObj('findBonus', gObj))
+        gObj.type = 'back'
+        transition.fadeOut( gObj.obj , { time=1500, onComplete=takeBonus, delay=delay } )
+        render.gotoBonus(gObj.obj, (bonuses - 1), delay)
+    end
+
     -- подписка на события
     -- https://docs.coronalabs.com/guide/events/touchMultitouch/index.html
     -- выбранный шар
@@ -121,7 +141,7 @@ function scene:create( event )
                 selectedPlayer.width = selectedPlayer.width / 1.5
                 selectedPlayer.height = selectedPlayer.height / 1.5
                 if direction ~= 'none' then
-                    local toObj = matrix.moveBall(gData, selectedGPlayer, direction)
+                    local toObj = matrix.moveBall(gData, selectedGPlayer, direction, findBonus)
                     if toObj then
                         print('time: ', toObj.time)
                         selectedPlayer:play()
