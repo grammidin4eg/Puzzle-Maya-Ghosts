@@ -1,7 +1,7 @@
-local common = require("common")
-local render = require("render")
 local composer = require ("composer")
-local matrix = require ("matrix")
+local common = require("scripts.common")
+local render = require("scripts.render")
+local matrix = require ("scripts.matrix")
 
 local scene = composer.newScene()
 function scene:create( event )
@@ -14,7 +14,6 @@ function scene:create( event )
     -- очки
     -- local tapText = display.newText( sceneGroup, 'score: 0', 105, 0, native.systemFont, 50)
     -- tapText:setFillColor( 0, 1, 0 )
-
     -- верхняя картинка
     local top = display.newImageRect(sceneGroup, 'img/top.png', common.screenWidth, common.margin)
     top.x = display.contentCenterX

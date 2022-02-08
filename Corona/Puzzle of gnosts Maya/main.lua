@@ -10,7 +10,7 @@
 -- https://docs.coronalabs.com/api/library/display/newText.html
 -- https://rgbcolorcode.com/
 
-local levelManager = require( "level_manager" )
+local levelManager = require( "scripts.level_manager" )
 
  -- Removes status bar on iOS
 display.setStatusBar( display.HiddenStatusBar ) 

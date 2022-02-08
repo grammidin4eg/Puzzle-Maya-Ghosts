@@ -1,6 +1,6 @@
-local common = require("common")
-local render = require("render")
 local composer = require ("composer")
+local common = require("scripts.common")
+local render = require("scripts.render")
 
 local scene = composer.newScene()
 -- https://github.com/coronalabs/Match-Three-Space-RPG/blob/master/scene/menu.lua

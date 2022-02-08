@@ -1,4 +1,4 @@
-local common = require("common")
+local common = require("scripts.common")
 local levelTemplates = require("levels.level_templates")
 -- контроль матрицы
 local matrix={}

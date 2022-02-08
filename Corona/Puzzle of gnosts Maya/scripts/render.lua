@@ -1,4 +1,4 @@
-local common = require("common")
+local common = require("scripts.common")
 local render = {}
 
 -- анимация плавного исчезновения/появления
