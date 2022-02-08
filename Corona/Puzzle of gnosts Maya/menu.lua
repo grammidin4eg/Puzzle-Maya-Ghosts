@@ -22,7 +22,7 @@ function scene:create( event )
     render.onFadeIn(tapText)
 
     -- музыка
-    local backgroundMusic = audio.loadStream( "main_menu.mp3" )
+    local backgroundMusic = audio.loadStream( "snd/main_menu.mp3" )
     audio.play( backgroundMusic, { channel=1, loops=-1 } )
 
     -- обработка тапа

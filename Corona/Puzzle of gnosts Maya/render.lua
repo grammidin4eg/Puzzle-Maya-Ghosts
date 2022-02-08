@@ -32,7 +32,7 @@ end
 local bonusesObjs = {}
 local function bonuses(group)  
     for i = 1, 4 do
-        bonusesObjs[i] = display.newImageRect(group, 'mask_off.png', 66, 88)
+        bonusesObjs[i] = display.newImageRect(group, 'img/mask_off.png', 66, 88)
         if i < 3 then
             bonusesObjs[i].x = 80 + (i - 1) * 100
         else
@@ -44,7 +44,7 @@ end
 
 local function updateBonus(group, value)
     local index = 4 - value
-    local maskOn = display.newImageRect(group, 'mask_on.png', 66, 88)
+    local maskOn = display.newImageRect(group, 'img/mask_on.png', 66, 88)
     maskOn.x = bonusesObjs[index].x
     maskOn.y = bonusesObjs[index].y
     bonusesObjs[index].x = -100
@@ -73,7 +73,7 @@ local function drawObjs(data, group)
             local index = (y * 7) + x + 1
             -- обычная картинка или анимация
             if data[index]['frames'] > 1 then
-                local back = display.newImageRect(group, 'back.png', common.cellSize, common.cellSize)
+                local back = display.newImageRect(group, 'img/back.png', common.cellSize, common.cellSize)
                 back.x = common.cellSize / 2 + (x * common.cellSize)
                 back.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
 
