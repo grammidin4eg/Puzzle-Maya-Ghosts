@@ -8,38 +8,36 @@ function scene:create( event )
     print('game create')
     local sceneGroup = self.view
     local params = event.params
-     local back = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, common.screenWidth, common.screenHeight*2 )
-     back:setFillColor( 0, 0, 0 )
+    local back = render.fillDisplay(sceneGroup)
 
     -- очки
     -- local tapText = display.newText( sceneGroup, 'score: 0', 105, 0, native.systemFont, 50)
     -- tapText:setFillColor( 0, 1, 0 )
+    -- todo fps
+
+    local my = 0
+
     -- верхняя картинка
-    local top = display.newImageRect(sceneGroup, 'img/top.png', common.screenWidth, common.margin)
-    top.x = display.contentCenterX
-    top.y = common.margin / 2 - 10
-
-    local top_sub = display.newImageRect(sceneGroup, 'img/top_sub.png', common.screenWidth, 12)
-    top_sub.x = display.contentCenterX
-    top_sub.y = common.margin - 2
-    -- нижняя картинка
-    local bottom_sub = display.newImageRect(sceneGroup, 'img/bottom_sub.png', common.screenWidth, 12)
-    bottom_sub.x = display.contentCenterX
-    bottom_sub.y = common.screenHeight - common.margin + 6
-
-    local bottom = display.newImageRect(sceneGroup, 'img/bottom.png', common.screenWidth, common.margin)
-    bottom.x = display.contentCenterX
-    bottom.y = common.screenHeight - common.margin / 2 + 12
+    local top = render.drawImg(sceneGroup, "top", common.screenWidth, common.margin, "top", display.contentCenterX, 0)
+    local top_sub = render.drawImg(sceneGroup, "top_sub", common.screenWidth, 12, "top", display.contentCenterX, common.margin)
 
     -- отрисовка сетки
-    render.gridLines(sceneGroup)
+    -- render.gridLines(sceneGroup)
 
-    -- вывод объектов на экран
-    local gData = render.drawObjs(params.level, sceneGroup)
+    my = top.height + top_sub.height
 
     -- бонусы
     local bonuses = 4
-    render.bonuses(sceneGroup)
+    my = render.bonuses(sceneGroup, my)
+
+    -- вывод объектов на экран
+    local gData = render.drawObjs(params.level, sceneGroup, my)
+    my = my + common.cellYCount * common.cellSize
+
+    -- нижняя картинка
+    local bottom_sub = render.drawImg(sceneGroup, "bottom_sub", common.screenWidth, 12, "top", display.contentCenterX, my)
+    my = my + bottom_sub.height
+    local bottom = render.drawImg(sceneGroup, "bottom", common.screenWidth, common.margin, "top", display.contentCenterX, my)
 
     -- события коллизии с бонусом
     local function takeBonus(obj)

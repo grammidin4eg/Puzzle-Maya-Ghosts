@@ -30,16 +30,21 @@ local function gridLines(group)
 end
 
 local bonusesObjs = {}
-local function bonuses(group)  
+local function bonuses(group, startY)
+    for x = 0, common.cellXCount - 1 do
+        render.drawCell(group, "wall", "topleft", x * common.cellSize, startY)
+    end
+    
     for i = 1, 4 do
         bonusesObjs[i] = display.newImageRect(group, 'img/mask_off.png', 66, 88)
         if i < 3 then
-            bonusesObjs[i].x = 80 + (i - 1) * 100
+            bonusesObjs[i].x = (i - 1) * common.cellSize + common.cellSize / 2
         else
-            bonusesObjs[i].x = common.screenWidth - (4 - i) * 100 - 88
+            bonusesObjs[i].x = (i + 2) * common.cellSize + common.cellSize / 2
         end        
-        bonusesObjs[i].y = common.margin - 100
+        bonusesObjs[i].y = startY - common.cellSize
     end  
+    return startY + common.cellSize
 end
 
 local function updateBonus(group, value)
@@ -66,8 +71,9 @@ local function indexToPos(index)
 end
 
 -- отрисовка объектов
-local function drawObjs(data, group)
+local function drawObjs(data, group, startY)
     local gData = {}
+    local my = startY - common.cellSize
     for y = 0, common.cellYCount-1 do
         for x = 0, common.cellXCount-1 do
             local index = (y * 7) + x + 1
@@ -75,7 +81,7 @@ local function drawObjs(data, group)
             if data[index]['frames'] > 1 then
                 local back = display.newImageRect(group, 'img/back.png', common.cellSize, common.cellSize)
                 back.x = common.cellSize / 2 + (x * common.cellSize)
-                back.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+                back.y = my + (y * common.cellSize)
 
                 local imageSheet = graphics.newImageSheet(data[index]['image'],  {
                     width = 66,
@@ -92,7 +98,7 @@ local function drawObjs(data, group)
                 }
                 local obj = display.newSprite( group, imageSheet, sequenceData )
                 obj.x = common.cellSize / 2 + (x * common.cellSize)
-                obj.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+                obj.y = my + (y * common.cellSize)
                 -- table.insert(gData, {x=obj.x, y=obj.y,type=data[index]['type']})
                 --obj:setFrame(1)
                 --obj:play()
@@ -102,7 +108,7 @@ local function drawObjs(data, group)
             else
                 local obj = display.newImageRect(group, data[index]['image'], common.cellSize, common.cellSize)
                 obj.x = common.cellSize / 2 + (x * common.cellSize)
-                obj.y = common.margin + (common.cellSize / 2) + (y * common.cellSize)
+                obj.y = my + (y * common.cellSize)
                 gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj,row=x,col=y}
             end
             -- https://docs.coronalabs.com/guide/media/spriteAnimation/index.html
@@ -111,10 +117,43 @@ local function drawObjs(data, group)
     end
     return gData;
 end
+
+local function fillDisplay(sceneGroup)
+    local back = display.newRect(sceneGroup, display.contentCenterX, display.contentCenterY, common.screenWidth, common.screenHeight*2 )
+    back:setFillColor( render.fromRGB(181), render.fromRGB(213), render.fromRGB(245) )
+    return back
+end
+
+local function fromRGB(value)
+    return value/255
+end
+
+local function drawImg(sceneGroup, filename, width, height, anchor, x, y)
+    local img = display.newImageRect(sceneGroup, 'img/'..filename..'.png', width, height)
+    if anchor == "top" then
+        img.anchorY = 0
+    end
+    if anchor == "topleft" then
+        img.anchorY = 0
+        img.anchorX = 0
+    end
+    img.x = x
+    img.y = common.topmargin + y
+    return img
+end
+
+local function drawCell(group, name, anchor, x, y)
+    return render.drawImg(group, name, common.cellSize, common.cellSize, anchor, x, y)
+end
+
 render.gridLines = gridLines
 render.drawObjs = drawObjs
 render.bonuses = bonuses
 render.updateBonus = updateBonus
 render.gotoBonus = gotoBonus
+render.drawImg = drawImg
+render.fillDisplay = fillDisplay
+render.drawCell = drawCell
+render.fromRGB = fromRGB
 
 return render
