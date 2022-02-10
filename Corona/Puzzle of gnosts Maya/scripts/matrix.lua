@@ -80,7 +80,11 @@ function moveBall(data, gObj, direction, onfindBonus)
     local lastObj = gObj
     local curPos = goToDirection(data, row, col, direction)
     local rows = 0
-    while curPos and rows < common.cellXCount do
+    local maxCellCount = common.cellXCount
+    if (direction == 'top') or (direction == 'bottom') then
+        maxCellCount = common.cellYCount
+    end
+    while curPos and rows < maxCellCount do
         lastObj = curPos
         curPos = goToDirection(data, row, col, direction)
         if curPos then
