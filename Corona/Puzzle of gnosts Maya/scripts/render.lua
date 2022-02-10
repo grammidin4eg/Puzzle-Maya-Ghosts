@@ -92,7 +92,7 @@ local function drawObjs(data, group, startY)
                     name="run",
                     start=1,
                     count=data[index]['frames']-1,
-                    time=5000,
+                    time=3000,
                     loopCount = 0,   -- Optional ; default is 0 (loop indefinitely)
                     loopDirection = "bounce"    -- Optional ; values include "forward" or "bounce"
                 }

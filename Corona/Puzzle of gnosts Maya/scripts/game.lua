@@ -140,9 +140,10 @@ function scene:create( event )
                 if direction ~= 'none' then
                     local toObj = matrix.moveBall(gData, selectedGPlayer, direction, findBonus)
                     if toObj then
-                        print('time: ', toObj.time)
+                        -- print('time: ', toObj.time)
                         selectedPlayer:play()
                         movedBall = selectedPlayer
+                        selectedPlayer.rotation = marker.rotation
                         transition.moveTo( selectedPlayer, { x=toObj.x, y=toObj.y, time=toObj.time, onComplete=onMoveComplete } )
                         local index = toObj.index
                         gData[index].x = toObj.x
