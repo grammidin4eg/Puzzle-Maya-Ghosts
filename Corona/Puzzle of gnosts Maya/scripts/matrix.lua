@@ -94,7 +94,7 @@ function moveBall(data, gObj, direction, onfindBonus)
         -- print('goToDirection row: '..row..' col: '..col..' curPos: '..tostring(curPos))
         rows = rows + 1
         if curPos and curPos.type == 'spirit' then 
-            print('find in matrix')
+            -- print('find in matrix')
             onfindBonus(curPos, rows * 200)
         end
     end

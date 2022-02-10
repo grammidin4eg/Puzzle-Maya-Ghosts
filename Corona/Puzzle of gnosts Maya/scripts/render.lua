@@ -8,8 +8,20 @@ end
 local function onFadeOut(obj)
     transition.fadeIn( obj , { time=1500, onComplete=render.onFadeIn } )
 end
+
 render.onFadeIn = onFadeIn
 render.onFadeOut = onFadeOut
+
+-- анимация плавного исчезновения/появления
+local function onSpiritEffect(obj)
+    transition.to( obj , { time=5000, alpha=0.4, yScale=0.85, xScale=0.85, onComplete=render.onSpiritEffectOut } )
+end
+local function onSpiritEffectOut(obj)
+    transition.to( obj , { time=2000, alpha=1, yScale=1, xScale=1, onComplete=render.onSpiritEffect } )
+end
+
+render.onSpiritEffect = onSpiritEffect
+render.onSpiritEffectOut = onSpiritEffectOut
 
 -- отрисовка сетки
 local function gridLines(group)
@@ -58,8 +70,8 @@ end
 local function gotoBonus(obj, value, delay)
     local index = 4 - value
     obj:toFront()
-    print('gotoBonus: ', obj, value, delay, index)
-    print('obj', bonusesObjs, bonusesObjs[index])
+    -- print('gotoBonus: ', obj, value, delay, index)
+    -- print('obj', bonusesObjs, bonusesObjs[index])
     transition.moveTo(obj, {time=1000, x = bonusesObjs[index].x, y = bonusesObjs[index].y, delay=delay})
 end
 
@@ -106,9 +118,19 @@ local function drawObjs(data, group, startY)
                 --obj.height = common.cellSize
                 gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj,row=x,col=y}
             else
+                local objX = common.cellSize / 2 + (x * common.cellSize)
+                local objY = my + (y * common.cellSize)
+                if data[index]['hasBackground'] == true then
+                    local backObj = display.newImageRect(group, 'img/back.png', common.cellSize, common.cellSize)
+                    backObj.x = objX
+                    backObj.y = objY
+                end
                 local obj = display.newImageRect(group, data[index]['image'], common.cellSize, common.cellSize)
-                obj.x = common.cellSize / 2 + (x * common.cellSize)
-                obj.y = my + (y * common.cellSize)
+                obj.x = objX
+                obj.y = objY
+                if data[index]['type'] == "spirit" then
+                    render.onSpiritEffect(obj)
+                end
                 gData[index] = {x=obj.x, y=obj.y,type=data[index]['type'],obj=obj,row=x,col=y}
             end
             -- https://docs.coronalabs.com/guide/media/spriteAnimation/index.html
